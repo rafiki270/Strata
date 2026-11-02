@@ -53,7 +53,7 @@ def run(args):
         return r.json()['input_tokens']
     results = []
     for trial in range(args.runs):
-        seed = f'{args.seed_base}-{trial}' if args.seed_base else f'run-{args.label}-{trial}-{time.time_ns()}'
+        seed = f'{args.seed_base}-{args.prompt}-{trial}' if args.seed_base else f'run-{args.label}-{trial}-{time.time_ns()}'
         # Calibrate character length against the actual tokenizer, then find the target boundary.
         lo, hi = 0, args.prompt*10
         while lo+1 < hi:
