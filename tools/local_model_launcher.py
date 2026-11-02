@@ -88,6 +88,26 @@ class Backend:
                 pass
         STATE.unlink(missing_ok=True)
 
+    def ensure_ollama(self, entry):
+        try:
+            requests.get('http://127.0.0.1:11434/api/tags', timeout=3).raise_for_status()
+            return
+        except requests.ConnectionError:
+            executable = entry.get('executable')
+            if not executable or not Path(executable).is_file():
+                raise RuntimeError('Ollama is offline. Start the installed Ollama app, then try again.')
+        with (STATE_DIR/'ollama.log').open('ab') as log:
+            subprocess.Popen([executable, 'serve'], stdin=subprocess.DEVNULL,
+                             stdout=log, stderr=log, creationflags=FLAGS)
+        for _ in range(30):
+            time.sleep(1)
+            try:
+                requests.get('http://127.0.0.1:11434/api/tags', timeout=2).raise_for_status()
+                return
+            except requests.ConnectionError:
+                continue
+        raise RuntimeError('Ollama did not start. See ollama.log.')
+
     def loaded(self):
         try:
             r = requests.get('http://127.0.0.1:11434/api/ps', timeout=3)
@@ -126,6 +146,7 @@ class Backend:
         entry = ENTRIES[index]
         if entry['kind'] == 'ollama':
             self.stop_server()
+            self.ensure_ollama(entry)
             for model in self.loaded():
                 if model['name'] != entry['model_id']:
                     self.unload(model['name'])

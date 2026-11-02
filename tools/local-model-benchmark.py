@@ -53,7 +53,7 @@ def run(args):
         return r.json()['input_tokens']
     results = []
     for trial in range(args.runs):
-        seed = f'run-{args.label}-{trial}-{time.time_ns()}'
+        seed = f'{args.seed_base}-{trial}' if args.seed_base else f'run-{args.label}-{trial}-{time.time_ns()}'
         # Calibrate character length against the actual tokenizer, then find the target boundary.
         lo, hi = 0, args.prompt*10
         while lo+1 < hi:
@@ -69,11 +69,12 @@ def run(args):
                 'stream':True, 'stream_options':{'include_usage':True},
                 'temperature':0, 'seed':42, 'reasoning_effort':'none',
                 'chat_template_kwargs':{'enable_thinking':False}, 'cache_prompt':False}
+        (out/f'{args.label}-{args.prompt}-{trial+1}.request.json').write_text(json.dumps(body),encoding='utf-8')
         started = time.perf_counter()
         first = None
         chunks = []
         result = {'label':args.label, 'trial':trial+1, 'input_tokens_counted':token_count,
-                  'requested_output_tokens':args.output, 'prompt_sha256':digest,
+                  'requested_output_tokens':args.output, 'prompt_sha256':digest, 'prompt_seed':seed,
                   'url':args.url,'kind':args.kind, 'utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
         print(json.dumps({'starting':result}), flush=True)
         try:
@@ -133,6 +134,7 @@ if __name__ == '__main__':
     parser.add_argument('--kind',choices=['strata','avalon'],default='strata')
     parser.add_argument('--prompt',type=int,default=32768)
     parser.add_argument('--output',type=int,default=512)
+    parser.add_argument('--seed-base')
     parser.add_argument('--retrieval',action='store_true')
     parser.add_argument('--runs',type=int,default=3)
     parser.add_argument('--timeout',type=int,default=3600)
