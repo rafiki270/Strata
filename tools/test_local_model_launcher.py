@@ -53,6 +53,13 @@ class LifecycleGuards(unittest.TestCase):
                 self.backend.start(0)
         spawn.assert_not_called()
 
+    def test_ollama_switch_preserves_foreign_strata_service(self):
+        self.module.ENTRIES.append({'kind':'ollama','model_id':'gemma4:26b'})
+        with patch.object(self.backend,'stop_server'), patch.object(self.backend,'ensure_ollama') as ensure, patch.object(self.module.requests,'get',return_value=Mock()):
+            with self.assertRaisesRegex(RuntimeError,'occupied'):
+                self.backend.start(1)
+        ensure.assert_not_called()
+
     def test_unconfigured_context_is_refused_before_stop(self):
         self.backend.context = 1048576
         with patch.object(self.backend,'stop_server') as stop:
