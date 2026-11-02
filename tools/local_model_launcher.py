@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import queue
+import socket
 import subprocess
 import threading
 import time
@@ -39,6 +40,18 @@ def initial_selection():
 
 class Backend:
     context = 32768
+
+    def ensure_proxy(self):
+        proxy = REGISTRY.get('proxy')
+        if not proxy:
+            return
+        with socket.socket() as connection:
+            connection.settimeout(1)
+            if connection.connect_ex((proxy['host'], proxy['port'])) == 0:
+                return
+        with (STATE_DIR/'proxy.log').open('ab') as log:
+            subprocess.Popen([proxy['python'], proxy['script']], cwd=proxy['source_root'],
+                             stdin=subprocess.DEVNULL, stdout=log, stderr=log, creationflags=FLAGS)
 
     def owned_process(self):
         try:
@@ -109,6 +122,7 @@ class Backend:
             return 'API not responding'
 
     def start(self, index):
+        self.ensure_proxy()
         entry = ENTRIES[index]
         if entry['kind'] == 'ollama':
             self.stop_server()
@@ -375,6 +389,7 @@ if __name__ == '__main__':
                 ctypes.windll.user32.ShowWindow(window,9)
                 ctypes.windll.user32.SetForegroundWindow(window)
         else:
+            backend.ensure_proxy()
             root=tk.Tk()
             App(root,backend)
             root.mainloop()
