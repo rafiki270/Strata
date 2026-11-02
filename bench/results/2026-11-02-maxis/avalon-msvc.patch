@@ -195,16 +195,16 @@
  #include <cstdint>
 +
 +// Aligned 32-bit mapped-host flags: volatile accesses plus acquire/release fences on MSVC.
-+static inline uint32_t moe_host_load_relaxed(const uint32_t * p) {
++template<typename T> static inline T moe_host_load_relaxed(const T * p) {
 +#ifdef _MSC_VER
-+    return *(const volatile uint32_t *) p;
++    return *(const volatile T *) p;
 +#else
 +    return __atomic_load_n(p, __ATOMIC_RELAXED);
 +#endif
 +}
-+static inline uint32_t moe_host_load_acquire(const uint32_t * p) {
++template<typename T> static inline T moe_host_load_acquire(const T * p) {
 +#ifdef _MSC_VER
-+    const uint32_t value = *(const volatile uint32_t *) p;
++    const T value = *(const volatile T *) p;
 +    std::atomic_thread_fence(std::memory_order_acquire);
 +    return value;
 +#else
@@ -308,16 +308,20 @@
                  std::unique_lock<std::mutex> serving(st->serve_mu, std::try_to_lock);
 --- a/ggml/src/ggml-cuda/mmvq.cu
 +++ b/ggml/src/ggml-cuda/mmvq.cu
-@@ -933,10 +933,10 @@
-     }
- 
-     if constexpr (!has_fusion) {
--        GGML_UNUSED_VARS(use_gate, use_bias, use_gate_bias, use_scale, use_gate_scale, active_glu, glu_limit, gate_bias, x_bias, x_scale, gate_scale, tmp_gate);
-+        GGML_UNUSED(use_gate); GGML_UNUSED(use_bias); GGML_UNUSED(use_gate_bias); GGML_UNUSED(use_scale); GGML_UNUSED(use_gate_scale); GGML_UNUSED(active_glu); GGML_UNUSED(glu_limit); GGML_UNUSED(gate_bias); GGML_UNUSED(x_bias); GGML_UNUSED(x_scale); GGML_UNUSED(gate_scale); GGML_UNUSED(tmp_gate);
-     }
-     if constexpr (type != GGML_TYPE_NVFP4) {
--        GGML_UNUSED_VARS(use_scale, use_gate_scale, x_scale, gate_scale, x_scales, gate_scales);
-+        GGML_UNUSED(use_scale); GGML_UNUSED(use_gate_scale); GGML_UNUSED(x_scale); GGML_UNUSED(gate_scale); GGML_UNUSED(x_scales); GGML_UNUSED(gate_scales);
-     }
- }
- 
+@@ -857,7 +857,7 @@
+                         gate_value += gate_biases[j];
+                         if constexpr (swiglu) {
+                             result *= ggml_cuda_op_silu_single(gate_value);
+-                        } else
++                        } else {
+                         switch (active_glu) {
+                             case GGML_GLU_OP_SWIGLU:
+                                 result *= ggml_cuda_op_silu_single(gate_value);
+@@ -874,6 +874,7 @@
+                             default:
+                                 result = result * gate_value;
+                                 break;
++                        }
+                         }
+                     }
+                 }
