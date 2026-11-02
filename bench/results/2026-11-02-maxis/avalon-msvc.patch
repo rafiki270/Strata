@@ -187,3 +187,137 @@
  
  // the chain kernel's grid (at most: a few blocks, all resident at once whatever runs on other queues, grid-barrier.cuh;
  // at the full occupancy, 7 x 42 blocks, it waited for ever in a prefill), and the largest task it takes (a few loops
+--- a/ggml/src/ggml-cuda/moe-cache.cu
++++ b/ggml/src/ggml-cuda/moe-cache.cu
+@@ -68,6 +68,33 @@
+ #include <condition_variable>
+ #include <cstdio>
+ #include <cstdint>
++
++// Aligned 32-bit mapped-host flags: volatile accesses plus acquire/release fences on MSVC.
++static inline uint32_t moe_host_load_relaxed(const uint32_t * p) {
++#ifdef _MSC_VER
++    return *(const volatile uint32_t *) p;
++#else
++    return __atomic_load_n(p, __ATOMIC_RELAXED);
++#endif
++}
++static inline uint32_t moe_host_load_acquire(const uint32_t * p) {
++#ifdef _MSC_VER
++    const uint32_t value = *(const volatile uint32_t *) p;
++    std::atomic_thread_fence(std::memory_order_acquire);
++    return value;
++#else
++    return __atomic_load_n(p, __ATOMIC_ACQUIRE);
++#endif
++}
++static inline void moe_host_store_release(uint32_t * p, uint32_t value) {
++#ifdef _MSC_VER
++    std::atomic_thread_fence(std::memory_order_release);
++    *(volatile uint32_t *) p = value;
++#else
++    __atomic_store_n(p, value, __ATOMIC_RELEASE);
++#endif
++}
++
+ #include <cstdlib>
+ #include <cstring>
+ #include <deque>
+@@ -325,7 +352,7 @@
+ // SPLIT: one tensor of the moved expert done (copied, failed or cancelled): the last one raises the flag
+ static void moe_cache_split_done_locked(const moe_cache_job & job) {
+     if (job.split_flag && --*job.split_pending == 0) {
+-        __atomic_store_n(job.split_flag, job.split_seq, __ATOMIC_RELEASE);
++        moe_host_store_release(job.split_flag, job.split_seq);
+     }
+ }
+ 
+@@ -6290,7 +6317,7 @@
+                 }
+             }
+         }
+-        __atomic_store_n(flag, seq, __ATOMIC_RELEASE);
++        moe_host_store_release(flag, seq);
+         if (!st.tl_host.empty()) {
+             st.tl_host[(seq % MOE_TL_RING) * 3 + 1] = moe_tl_now_ns();
+         }
+@@ -6630,7 +6657,7 @@
+         }
+     }
+     if (jobs == 0) {
+-        __atomic_store_n(&layer->h_flags[24], seq, __ATOMIC_RELEASE);
++        moe_host_store_release(&layer->h_flags[24], seq);
+     }
+     return n_cpu;
+ }
+@@ -6692,7 +6719,7 @@
+     device.pg_cands.clear();
+     device.pg_next = 0;
+     if (next && std::find(skip.begin(), skip.end(), (int) slot + 1) == skip.end() &&
+-            (uint32_t) __atomic_load_n(&pred[0], __ATOMIC_ACQUIRE) == seq && next->pool_index >= 0 && next->down_pool_index >= 0) {
++            (uint32_t) moe_host_load_acquire(&pred[0]) == seq && next->pool_index >= 0 && next->down_pool_index >= 0) {
+         const int n = pred[1];
+         const int k = std::max(1, n / std::max(1, layer->last_tokens));
+         const void * key = next->gate_w->data;
+@@ -6879,8 +6906,8 @@
+         st->device->pg_cands.clear();         // not started missed their window
+         st->device->pg_next = 0;
+     }
+-    const uint32_t slot = __atomic_load_n(&st->h_mail->slot, __ATOMIC_RELAXED);
+-    const int n_tokens = (int) __atomic_load_n(&st->h_mail->n_tokens, __ATOMIC_RELAXED);
++    const uint32_t slot = moe_host_load_relaxed(&st->h_mail->slot);
++    const int n_tokens = (int) moe_host_load_relaxed(&st->h_mail->n_tokens);
+     moe_hosted_layer * layer;
+     {
+         std::lock_guard<std::mutex> lock(st->mu);
+@@ -6940,7 +6967,7 @@
+                    layer->n_embd * sizeof(float));
+         }
+     }
+-    __atomic_store_n(&layer->h_flags[16], seq, __ATOMIC_RELEASE);
++    moe_host_store_release(&layer->h_flags[16], seq);
+     if (t_cal > 0 && n_cpu > 0) {
+         moe_split_calibrate(st, ids.data(), n_cpu, ggml_time_us() - t_cal);
+     }
+@@ -6958,7 +6985,7 @@
+             bool any = false;
+             for (int r = 0; r < rows; r++) any |= layer->h_plan2[2 * rows + r] != 0;
+             if (any) {
+-                while ((int32_t) (__atomic_load_n(&layer->h_flags[28], __ATOMIC_ACQUIRE) - seq) < 0) {
++                while ((int32_t) (moe_host_load_acquire(&layer->h_flags[28]) - seq) < 0) {
+ #if defined(__x86_64__)
+                     __builtin_ia32_pause();
+ #endif
+@@ -7077,7 +7104,7 @@
+         bool served = false;
+         for (int k = 0; k < n_st; k++) {
+             moe_hosted_state * s = sts[k];
+-            const uint32_t seq = __atomic_load_n(&s->h_mail->seq, __ATOMIC_ACQUIRE);
++            const uint32_t seq = moe_host_load_acquire(&s->h_mail->seq);
+             if (serving[k].owns_lock() && seq != s->last_seq) {
+                 s->last_seq = seq;
+                 moe_hosted_serve_one(s, seq);
+@@ -7228,7 +7255,7 @@
+             // loads a cuBLASLt module (cuLibraryLoadData) that waits for the device while holding a driver lock;
+             // a cudaStreamQuery each poll then waited for that lock while the device waited for this mailbox
+             // (RTX 4090, 30 Oct.: a fresh server's first request hung with blocks of more than 128 rows)
+-            const uint32_t seq = __atomic_load_n(&st->h_mail->seq, __ATOMIC_ACQUIRE);
++            const uint32_t seq = moe_host_load_acquire(&st->h_mail->seq);
+             uint32_t advanced = 0;
+             {
+                 std::unique_lock<std::mutex> serving(st->serve_mu, std::try_to_lock);
+--- a/ggml/src/ggml-cuda/mmvq.cu
++++ b/ggml/src/ggml-cuda/mmvq.cu
+@@ -933,10 +933,10 @@
+     }
+ 
+     if constexpr (!has_fusion) {
+-        GGML_UNUSED_VARS(use_gate, use_bias, use_gate_bias, use_scale, use_gate_scale, active_glu, glu_limit, gate_bias, x_bias, x_scale, gate_scale, tmp_gate);
++        GGML_UNUSED(use_gate); GGML_UNUSED(use_bias); GGML_UNUSED(use_gate_bias); GGML_UNUSED(use_scale); GGML_UNUSED(use_gate_scale); GGML_UNUSED(active_glu); GGML_UNUSED(glu_limit); GGML_UNUSED(gate_bias); GGML_UNUSED(x_bias); GGML_UNUSED(x_scale); GGML_UNUSED(gate_scale); GGML_UNUSED(tmp_gate);
+     }
+     if constexpr (type != GGML_TYPE_NVFP4) {
+-        GGML_UNUSED_VARS(use_scale, use_gate_scale, x_scale, gate_scale, x_scales, gate_scales);
++        GGML_UNUSED(use_scale); GGML_UNUSED(use_gate_scale); GGML_UNUSED(x_scale); GGML_UNUSED(gate_scale); GGML_UNUSED(x_scales); GGML_UNUSED(gate_scales);
+     }
+ }
+ 
