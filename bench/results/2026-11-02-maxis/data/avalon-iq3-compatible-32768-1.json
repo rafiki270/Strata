@@ -1,0 +1,34 @@
+{
+  "label": "avalon-iq3-compatible",
+  "trial": 1,
+  "input_tokens_counted": 32768,
+  "requested_output_tokens": 512,
+  "prompt_sha256": "a0e2094b840917e3e295253fbf18d57214951da7647a7f7ae3bfc73aa1ddfbb4",
+  "prompt_seed": "maxis-20261102-0",
+  "url": "http://127.0.0.1:8087",
+  "kind": "avalon",
+  "utc": "2026-11-02T05:49:41Z",
+  "finish_reason": "length",
+  "usage": {
+    "completion_tokens": 512,
+    "prompt_tokens": 32768,
+    "total_tokens": 33280,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 32768,
+    "prompt_ms": 33126.597,
+    "prompt_per_token_ms": 1.0109435119628907,
+    "prompt_per_second": 989.1749520785368,
+    "predicted_n": 512,
+    "predicted_ms": 25003.516,
+    "predicted_per_token_ms": 48.93055968688845,
+    "predicted_per_second": 20.437125722638367
+  },
+  "wall_seconds": 58.22173140000086,
+  "time_to_first_token_seconds": 33.23174149997067,
+  "answer": "Based on the data provided in the `maxis-20261102-0` benchmark archive, here is a detailed numbered checklist of 100 practical steps for maintaining a software release archive. Each step includes a full explanatory sentence to ensure clarity and actionable guidance.\n\n1.  **Define Archive Scope**: Clearly define which software versions, branches, and associated documentation are included in the archive to prevent scope creep and ensure comprehensive coverage.\n2.  **Establish Naming Conventions**: Implement a strict, consistent naming convention for all archive files and directories to facilitate easy identification and retrieval of specific releases.\n3.  **Assign Unique Identifiers**: Assign a unique, immutable identifier (such as a UUID or sequential ID) to every archived release to prevent confusion between similar version numbers.\n4.  **Verify Checksums**: Generate and store cryptographic checksums (e.g., SHA-256) for all archived files to ensure data integrity and detect any corruption or tampering.\n5.  **Document Release Notes**: Include comprehensive release notes detailing new features, bug fixes, and known issues for every archived version to provide context for future users.\n6.  **Record Build Metadata**: Capture and store build metadata, including compiler versions, build dates, and environment variables, to ensure reproducibility of the archived software.\n7.  **Implement Version Control Tags**: Ensure that every archived release corresponds to a specific, annotated tag in the version control system to link the archive to the source code history.\n8.  **Standardize File Formats**: Use standard, open file formats for all archived documents and binaries to ensure long-term accessibility and compatibility across different systems.\n9.  **Create Directory Structure**: Organize the archive using a hierarchical directory structure based on major versions, minor versions, and patch levels to simplify navigation.\n10. **Maintain an Index File**: Create and maintain a master index file that lists all archived releases, their identifiers, checksums, and brief descriptions for quick reference.\n11. **Automate Archive Creation**: Develop scripts or use tools to automate the process of creating archives to reduce human error and ensure consistency in the packaging process.\n12. **Validate Archive Integrity**: Perform automated integrity checks on the archive immediately after creation to confirm that all files are present and uncorrupted.\n13. **Store Source Code**: Include the complete source code associated with the release in the archive to allow for future debugging, modification, or recompilation."
+}

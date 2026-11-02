@@ -1,0 +1,35 @@
+{
+  "label": "qwen-q4-installed",
+  "trial": 2,
+  "input_tokens_counted": 32768,
+  "requested_output_tokens": 512,
+  "prompt_sha256": "107e1bba84e7280b3c891501c01fbbc0f562e5128dbea3f1aa48f38f1995ea6e",
+  "url": "http://127.0.0.1:8085",
+  "kind": "strata",
+  "utc": "2026-11-02T04:41:48Z",
+  "usage": {
+    "prompt_tokens": 32728,
+    "completion_tokens": 512,
+    "total_tokens": 33240,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 32728,
+    "prompt_ms": 22932.1,
+    "prompt_per_token_ms": 0.701,
+    "prompt_per_second": 1427.2,
+    "predicted_n": 512,
+    "predicted_ms": 10835.1,
+    "predicted_per_token_ms": 21.162,
+    "predicted_per_second": 47.3,
+    "draft_n": 465,
+    "draft_n_accepted": 276
+  },
+  "finish_reason": "length",
+  "wall_seconds": 51.19267330004368,
+  "time_to_first_token_seconds": 23.32948130002478,
+  "answer": "Here is a detailed numbered checklist of 100 practical steps for maintaining a software release archive, designed to ensure integrity, accessibility, and compliance.\n\n1. Define a clear retention policy that specifies how long different types of software releases must be kept based on legal, regulatory, and business requirements.\n2. Establish a standardized naming convention for all archive files to ensure consistency and ease of identification across different teams and time periods.\n3. Create a dedicated, secure storage location for the archive that is separate from active development environments to prevent accidental modification or deletion.\n4. Implement role-based access control to restrict who can view, download, or modify the archived software releases.\n5. Generate cryptographic checksums, such as SHA-256 hashes, for every file included in the release package to verify integrity later.\n6. Document the exact build environment, including operating system versions, compiler versions, and library dependencies, for each archived release.\n7. Include the complete source code associated with the binary release in the archive to facilitate future debugging or recompilation if necessary.\n8. Archive all configuration files used during the build process to ensure the release can be reproduced accurately in the future.\n9. Store the release notes and changelog documents alongside the software binaries to provide context for what was included in the release.\n10. Include a manifest file that lists every single file contained within the archive along with its corresponding checksum.\n11. Compress the release package using a standard, lossless compression algorithm like ZIP or TAR.GZ to save storage space while preserving data integrity.\n12. Encrypt the archived release packages at rest using strong encryption standards to protect intellectual property and sensitive data.\n13. Maintain a separate, offline backup of the archive to protect against ransomware attacks or catastrophic data center failures.\n14. Implement an automated script that triggers the archiving process immediately after a successful production deployment.\n15. Verify that the archived binaries match the binaries currently running in the production environment before finalizing the archive.\n16. Record the digital signatures used to sign the software release and store the public keys in a secure, accessible location.\n17. Document the specific commit hash or version control tag that corresponds to the archived release for precise traceability.\n18. Include any third-party libraries or dependencies bundled with the release in the archive to ensure complete reproducibility.\n19. Store the license agreements for all third-party components included in the release to ensure ongoing legal compliance"
+}

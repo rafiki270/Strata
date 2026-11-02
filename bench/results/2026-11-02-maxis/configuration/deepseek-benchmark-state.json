@@ -1,0 +1,104 @@
+{
+  "stage": "finished",
+  "utc": "2026-11-02T07:02:50Z",
+  "cases": [
+    {
+      "label": "deepseek-2bit-262144",
+      "window": 262144,
+      "target_input_tokens": 32768,
+      "runs": 3,
+      "server_pid": 84700,
+      "health": {
+        "status": "ok",
+        "max_context": 262144,
+        "model": "deepseek-v4.1-flash",
+        "images": false,
+        "api_key": false,
+        "image_generation": false,
+        "loaded": true,
+        "service": "strata"
+      },
+      "startup_seconds": 28.75,
+      "client_exit_code": 0,
+      "result_files": [
+        "deepseek-2bit-262144-32768-1.json",
+        "deepseek-2bit-262144-32768-2.json",
+        "deepseek-2bit-262144-32768-3.json"
+      ],
+      "passed": true,
+      "case_wall_seconds": 347.1720000000205
+    },
+    {
+      "label": "deepseek-2bit-262144",
+      "window": 262144,
+      "target_input_tokens": 261632,
+      "runs": 1,
+      "server_pid": 73720,
+      "health": {
+        "status": "ok",
+        "max_context": 262144,
+        "model": "deepseek-v4.1-flash",
+        "images": false,
+        "api_key": false,
+        "image_generation": false,
+        "loaded": true,
+        "service": "strata"
+      },
+      "startup_seconds": 41.89100000000326,
+      "client_exit_code": 0,
+      "result_files": [
+        "deepseek-2bit-262144-261632-1.json"
+      ],
+      "passed": true,
+      "case_wall_seconds": 481.89100000000326
+    },
+    {
+      "label": "deepseek-2bit-524288",
+      "window": 524288,
+      "target_input_tokens": 523776,
+      "runs": 1,
+      "server_pid": 56268,
+      "health": {
+        "status": "ok",
+        "max_context": 524288,
+        "model": "deepseek-v4.1-flash",
+        "images": false,
+        "api_key": false,
+        "image_generation": false,
+        "loaded": true,
+        "service": "strata"
+      },
+      "startup_seconds": 40.90600000001723,
+      "client_exit_code": 0,
+      "result_files": [
+        "deepseek-2bit-524288-523776-1.json"
+      ],
+      "passed": true,
+      "case_wall_seconds": 872.5310000000172
+    },
+    {
+      "label": "deepseek-2bit-1048576",
+      "window": 1048576,
+      "target_input_tokens": 1048064,
+      "runs": 1,
+      "server_pid": 42664,
+      "health": {
+        "status": "ok",
+        "max_context": 1048576,
+        "model": "deepseek-v4.1-flash",
+        "images": false,
+        "api_key": false,
+        "image_generation": false,
+        "loaded": true,
+        "service": "strata"
+      },
+      "startup_seconds": 40.89100000000326,
+      "client_exit_code": 0,
+      "result_files": [
+        "deepseek-2bit-1048576-1048064-1.json"
+      ],
+      "passed": true,
+      "case_wall_seconds": 1856.9070000000065
+    }
+  ]
+}

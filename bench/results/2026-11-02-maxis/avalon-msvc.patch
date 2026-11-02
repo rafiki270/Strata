@@ -1,0 +1,378 @@
+--- a/ggml/src/ggml-cpu/ggml-cpu.c
++++ b/ggml/src/ggml-cpu/ggml-cpu.c
+@@ -18,6 +18,9 @@
+ 
+ #if defined(_MSC_VER) || defined(__MINGW32__)
+ #include <malloc.h> // using malloc.h with MSC/MINGW
++#ifdef _MSC_VER
++#include <intrin.h>
++#endif
+ #elif !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
+ #include <alloca.h>
+ #endif
+@@ -4568,7 +4571,11 @@
+     for (int k = 0; k < 2; k++) {
+         const int h = k == 0 ? g : 1 - g;
+         const int len = h == 0 ? c0 : n_ch - c0;
++#ifdef _MSC_VER
++        const int i = (int) _InterlockedExchangeAdd((volatile long *) cnt[h], 1);
++#else
+         const int i = __atomic_fetch_add(cnt[h], 1, __ATOMIC_RELAXED);
++#endif
+         if (i < n_pairs * len) {
+             return (i / len) * n_ch + (h == 0 ? 0 : c0) + i % len;
+         }
+@@ -4650,6 +4657,7 @@
+     int * cnt_gu[2] = { cnt_lines[0], cnt_lines[1] }, * cnt_d[2] = { cnt_lines[2], cnt_lines[3] };
+     #pragma omp parallel num_threads(n_threads)
+     {
++        int it;
+         float   hrow[QK8_0];
+         const void * ys[8];
+         int          rs[8];
+@@ -4659,7 +4667,7 @@
+         // work and no barrier
+         if (!act_q8) {
+             #pragma omp for
+-            for (int it = 0; it < n * nb_a; it++) {
++            for (it = 0; it < n * nb_a; it++) {
+                 const int j = it / nb_a, b = it % nb_a;
+                 quantize_row_q8_0_gpu(act + (size_t) j * n_embd + (size_t) b * QK8_0, a8 + (size_t) j * a_row + (size_t) b * sizeof(block_q8_0), QK8_0);
+             }
+@@ -4696,12 +4704,12 @@
+             #pragma omp barrier
+         } else {
+             #pragma omp for schedule(dynamic, 1)
+-            for (int it = 0; it < n_uniq * 2 * n_ch1; it++) MOE_GU_BODY(it)
++            for (it = 0; it < n_uniq * 2 * n_ch1; it++) MOE_GU_BODY(it)
+         }
+         #undef MOE_GU_BODY
+         // swiglu, then the activations of down, a q8_0 block per item (every thread works, not one per row)
+         #pragma omp for
+-        for (int it = 0; it < n * nb_0; it++) {
++        for (it = 0; it < n * nb_0; it++) {
+             const int j = it / nb_0, b = it % nb_0;
+             const float * gj = g + (size_t) j * n_ff + (size_t) b * QK8_0;
+             const float * uj = u + (size_t) j * n_ff + (size_t) b * QK8_0;
+@@ -4742,7 +4750,7 @@
+             }
+         } else {
+             #pragma omp for schedule(dynamic, 1)
+-            for (int it = 0; it < n_uniq * n_ch3; it++) MOE_D_BODY(it)
++            for (it = 0; it < n_uniq * n_ch3; it++) MOE_D_BODY(it)
+         }
+         #undef MOE_D_BODY
+     }
+--- a/ggml/src/ggml-cpu/arch/x86/quants.c
++++ b/ggml/src/ggml-cpu/arch/x86/quants.c
+@@ -4269,10 +4269,16 @@
+ #endif
+ }
+ 
++#if defined(_MSC_VER)
++#define GGML_MULTI_INLINE static __forceinline
++#else
++#define GGML_MULTI_INLINE static inline __attribute__((always_inline))
++#endif
++
+ // Several activation rows against one weight row (MoE experts shared by the tokens of an MTP verification): the
+ // weights of a block are decoded once, as the one-row kernels above do, and dotted with every row's activations.
+ // At most 8 rows; s[c] for vy[c].
+-static inline __attribute__((always_inline)) void ggml_vec_dot_iq2_s_q8_K_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
++GGML_MULTI_INLINE void ggml_vec_dot_iq2_s_q8_K_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
+ #if defined(__AVX2__)
+     static const uint8_t k_mask1[32] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+                                         0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03};
+@@ -4335,7 +4341,7 @@
+ #endif
+ }
+ 
+-static inline __attribute__((always_inline)) void ggml_vec_dot_iq3_k_q8_K_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
++GGML_MULTI_INLINE void ggml_vec_dot_iq3_k_q8_K_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
+ #if defined __AVX2__
+     const block_iq3_k * GGML_RESTRICT x = vx;
+     const int nb = n / QK_K;
+@@ -4377,7 +4383,7 @@
+ #endif
+ }
+ 
+-static inline __attribute__((always_inline)) void ggml_vec_dot_iq4_nl_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
++GGML_MULTI_INLINE void ggml_vec_dot_iq4_nl_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
+ #if defined __AVX2__
+     const block_iq4_nl * GGML_RESTRICT x = vx;
+     const int nb = n / QK4_NL;
+@@ -4406,7 +4412,7 @@
+ // The same with q8_0 activations (ggml_cpu_moe_experts: quantized as the GPU's q8_1, blocks of 32, so that an expert
+ // computed by the CPU or by the GPU starts from the same activation bytes): an activation scale per block of 32, the
+ // integer sums of each block scaled by it.
+-static inline __attribute__((always_inline)) void ggml_vec_dot_iq2_s_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
++GGML_MULTI_INLINE void ggml_vec_dot_iq2_s_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
+ #if defined(__AVX2__)
+     static const uint8_t k_mask1[32] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+                                         0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03};
+@@ -4467,7 +4473,7 @@
+ #endif
+ }
+ 
+-static inline __attribute__((always_inline)) void ggml_vec_dot_iq3_k_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
++GGML_MULTI_INLINE void ggml_vec_dot_iq3_k_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
+ #if defined __AVX2__
+     const block_iq3_k * GGML_RESTRICT x = vx;
+     const int nb = n / QK_K;
+@@ -4508,7 +4514,7 @@
+ #endif
+ }
+ 
+-static inline __attribute__((always_inline)) void ggml_vec_dot_iq3_ks_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
++GGML_MULTI_INLINE void ggml_vec_dot_iq3_ks_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
+ #if defined __AVX2__
+     const block_iq3_ks * GGML_RESTRICT x = vx;
+     const int nb = n / QK_K;
+@@ -4548,7 +4554,7 @@
+ // The types of ISTA's IQ3_S experts (IQ3_XXS, IQ3_S, IQ4_XS gate / up; Q2_0 down) with q8_0 activations, a weight
+ // block decoded once for every activation row (ggml_cpu_moe_experts_multi): the decoding of the one-row q8_K kernels, the
+ // integer sums of each block of 32 scaled by its activation scale.
+-static inline __attribute__((always_inline)) void ggml_vec_dot_iq3_xxs_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
++GGML_MULTI_INLINE void ggml_vec_dot_iq3_xxs_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
+ #if defined(__AVX2__)
+     const block_iq3_xxs * GGML_RESTRICT x = vx;
+     const int nb = n / QK_K;
+@@ -4589,7 +4595,7 @@
+ #endif
+ }
+ 
+-static inline __attribute__((always_inline)) void ggml_vec_dot_iq3_s_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
++GGML_MULTI_INLINE void ggml_vec_dot_iq3_s_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
+ #if defined(__AVX2__)
+     static const uint8_t k_mask1[32] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+                                         0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03};
+@@ -4645,7 +4651,7 @@
+ #endif
+ }
+ 
+-static inline __attribute__((always_inline)) void ggml_vec_dot_iq4_xs_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
++GGML_MULTI_INLINE void ggml_vec_dot_iq4_xs_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
+ #if defined(__AVX2__)
+     const block_iq4_xs * GGML_RESTRICT x = vx;
+     const int nb = n / QK_K;
+@@ -4677,7 +4683,7 @@
+ }
+ 
+ // Q2_0: blocks of 64 two-bit values q (w = q - 1), element j in bits 2*(j%4) of byte j/4; two q8_0 blocks per block.
+-static inline __attribute__((always_inline)) void ggml_vec_dot_q2_0_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
++GGML_MULTI_INLINE void ggml_vec_dot_q2_0_q8_0_multi_n(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy, const int nc) {
+ #if defined(__AVX2__)
+     const block_q2_0 * GGML_RESTRICT x = vx;
+     const int nb = n / QK2_0;
+@@ -4716,7 +4722,11 @@
+ // Each column count in a function of its own: the dispatcher is then a jump. With the cases inlined in it, every call
+ // (one row of weights) ran the prologue of the largest (stack realigned to 32 bytes, a frame of 0x1c0 - 0x480 bytes,
+ // six registers saved), +4 % on an IQ3_XXS expert's gate / up rows.
++#ifdef _MSC_VER
++#define GGML_MULTI_CASE_ATTR __declspec(noinline)
++#else
+ #define GGML_MULTI_CASE_ATTR __attribute__((noinline))
++#endif
+ #define GGML_MULTI_CASES(kern)                                                                                             \
+ static GGML_MULTI_CASE_ATTR void kern##_c2(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy) { kern(n, s, vx, vy, 2); } \
+ static GGML_MULTI_CASE_ATTR void kern##_c3(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy) { kern(n, s, vx, vy, 3); } \
+--- a/ggml/src/ggml-cuda/mk.cu
++++ b/ggml/src/ggml-cuda/mk.cu
+@@ -169,7 +169,7 @@
+ 
+ // the chain kernel of blocks of 256 threads: stages of the indexer key's tasks (mk_class_chain256), each looping over
+ // its virtual blocks, a grid barrier between two stages (its own pair: it never runs at the same time as k_mk_chain128)
+-static __device__ __attribute__((aligned(256))) unsigned g_mk_bar256[128];   // count [0], generation [64]
++static __device__ __align__(256) unsigned g_mk_bar256[128];   // count [0], generation [64]
+ 
+ // the chain kernel's grid (at most: a few blocks, all resident at once whatever runs on other queues, grid-barrier.cuh;
+ // at the full occupancy, 7 x 42 blocks, it waited for ever in a prefill), and the largest task it takes (a few loops
+--- a/ggml/src/ggml-cuda/moe-cache.cu
++++ b/ggml/src/ggml-cuda/moe-cache.cu
+@@ -68,6 +68,33 @@
+ #include <condition_variable>
+ #include <cstdio>
+ #include <cstdint>
++
++// Aligned 32-bit mapped-host flags: volatile accesses plus acquire/release fences on MSVC.
++template<typename T> static inline T moe_host_load_relaxed(const T * p) {
++#ifdef _MSC_VER
++    return *(const volatile T *) p;
++#else
++    return __atomic_load_n(p, __ATOMIC_RELAXED);
++#endif
++}
++template<typename T> static inline T moe_host_load_acquire(const T * p) {
++#ifdef _MSC_VER
++    const T value = *(const volatile T *) p;
++    std::atomic_thread_fence(std::memory_order_acquire);
++    return value;
++#else
++    return __atomic_load_n(p, __ATOMIC_ACQUIRE);
++#endif
++}
++static inline void moe_host_store_release(uint32_t * p, uint32_t value) {
++#ifdef _MSC_VER
++    std::atomic_thread_fence(std::memory_order_release);
++    *(volatile uint32_t *) p = value;
++#else
++    __atomic_store_n(p, value, __ATOMIC_RELEASE);
++#endif
++}
++
+ #include <cstdlib>
+ #include <cstring>
+ #include <deque>
+@@ -325,7 +352,7 @@
+ // SPLIT: one tensor of the moved expert done (copied, failed or cancelled): the last one raises the flag
+ static void moe_cache_split_done_locked(const moe_cache_job & job) {
+     if (job.split_flag && --*job.split_pending == 0) {
+-        __atomic_store_n(job.split_flag, job.split_seq, __ATOMIC_RELEASE);
++        moe_host_store_release(job.split_flag, job.split_seq);
+     }
+ }
+ 
+@@ -6290,7 +6317,7 @@
+                 }
+             }
+         }
+-        __atomic_store_n(flag, seq, __ATOMIC_RELEASE);
++        moe_host_store_release(flag, seq);
+         if (!st.tl_host.empty()) {
+             st.tl_host[(seq % MOE_TL_RING) * 3 + 1] = moe_tl_now_ns();
+         }
+@@ -6630,7 +6657,7 @@
+         }
+     }
+     if (jobs == 0) {
+-        __atomic_store_n(&layer->h_flags[24], seq, __ATOMIC_RELEASE);
++        moe_host_store_release(&layer->h_flags[24], seq);
+     }
+     return n_cpu;
+ }
+@@ -6692,7 +6719,7 @@
+     device.pg_cands.clear();
+     device.pg_next = 0;
+     if (next && std::find(skip.begin(), skip.end(), (int) slot + 1) == skip.end() &&
+-            (uint32_t) __atomic_load_n(&pred[0], __ATOMIC_ACQUIRE) == seq && next->pool_index >= 0 && next->down_pool_index >= 0) {
++            (uint32_t) moe_host_load_acquire(&pred[0]) == seq && next->pool_index >= 0 && next->down_pool_index >= 0) {
+         const int n = pred[1];
+         const int k = std::max(1, n / std::max(1, layer->last_tokens));
+         const void * key = next->gate_w->data;
+@@ -6879,8 +6906,8 @@
+         st->device->pg_cands.clear();         // not started missed their window
+         st->device->pg_next = 0;
+     }
+-    const uint32_t slot = __atomic_load_n(&st->h_mail->slot, __ATOMIC_RELAXED);
+-    const int n_tokens = (int) __atomic_load_n(&st->h_mail->n_tokens, __ATOMIC_RELAXED);
++    const uint32_t slot = moe_host_load_relaxed(&st->h_mail->slot);
++    const int n_tokens = (int) moe_host_load_relaxed(&st->h_mail->n_tokens);
+     moe_hosted_layer * layer;
+     {
+         std::lock_guard<std::mutex> lock(st->mu);
+@@ -6940,7 +6967,7 @@
+                    layer->n_embd * sizeof(float));
+         }
+     }
+-    __atomic_store_n(&layer->h_flags[16], seq, __ATOMIC_RELEASE);
++    moe_host_store_release(&layer->h_flags[16], seq);
+     if (t_cal > 0 && n_cpu > 0) {
+         moe_split_calibrate(st, ids.data(), n_cpu, ggml_time_us() - t_cal);
+     }
+@@ -6958,7 +6985,7 @@
+             bool any = false;
+             for (int r = 0; r < rows; r++) any |= layer->h_plan2[2 * rows + r] != 0;
+             if (any) {
+-                while ((int32_t) (__atomic_load_n(&layer->h_flags[28], __ATOMIC_ACQUIRE) - seq) < 0) {
++                while ((int32_t) (moe_host_load_acquire(&layer->h_flags[28]) - seq) < 0) {
+ #if defined(__x86_64__)
+                     __builtin_ia32_pause();
+ #endif
+@@ -7077,7 +7104,7 @@
+         bool served = false;
+         for (int k = 0; k < n_st; k++) {
+             moe_hosted_state * s = sts[k];
+-            const uint32_t seq = __atomic_load_n(&s->h_mail->seq, __ATOMIC_ACQUIRE);
++            const uint32_t seq = moe_host_load_acquire(&s->h_mail->seq);
+             if (serving[k].owns_lock() && seq != s->last_seq) {
+                 s->last_seq = seq;
+                 moe_hosted_serve_one(s, seq);
+@@ -7228,7 +7255,7 @@
+             // loads a cuBLASLt module (cuLibraryLoadData) that waits for the device while holding a driver lock;
+             // a cudaStreamQuery each poll then waited for that lock while the device waited for this mailbox
+             // (RTX 4090, 30 Oct.: a fresh server's first request hung with blocks of more than 128 rows)
+-            const uint32_t seq = __atomic_load_n(&st->h_mail->seq, __ATOMIC_ACQUIRE);
++            const uint32_t seq = moe_host_load_acquire(&st->h_mail->seq);
+             uint32_t advanced = 0;
+             {
+                 std::unique_lock<std::mutex> serving(st->serve_mu, std::try_to_lock);
+--- a/ggml/src/ggml-cuda/mmvq.cu
++++ b/ggml/src/ggml-cuda/mmvq.cu
+@@ -857,7 +857,7 @@
+                         gate_value += gate_biases[j];
+                         if constexpr (swiglu) {
+                             result *= ggml_cuda_op_silu_single(gate_value);
+-                        } else
++                        } else {
+                         switch (active_glu) {
+                             case GGML_GLU_OP_SWIGLU:
+                                 result *= ggml_cuda_op_silu_single(gate_value);
+@@ -874,6 +874,7 @@
+                             default:
+                                 result = result * gate_value;
+                                 break;
++                        }
+                         }
+                     }
+                 }
+--- a/ggml/src/ggml-cuda/qwen4-hc.cu
++++ b/ggml/src/ggml-cuda/qwen4-hc.cu
+@@ -467,7 +467,7 @@
+ // tests/waitbench). The last workgroup to finish resets the counters.
+ static constexpr int QWEN4_HC_K12_ROWS = QWEN4_HC_K1_THREADS / (QWEN4_HC_K2_WARPS*WARP_SIZE);
+ 
+-static __device__ __attribute__((aligned(256))) unsigned g_qwen4_hc_k12[128];   // K1 done [0], finished [64]
++static __device__ __align__(256) unsigned g_qwen4_hc_k12[128];   // K1 done [0], finished [64]
+ 
+ template <int T, ggml_type WT>
+ __launch_bounds__(QWEN4_HC_K1_THREADS, 1)
+--- a/ggml/src/ggml-cuda/top-k.cu
++++ b/ggml/src/ggml-cuda/top-k.cu
+@@ -304,7 +304,7 @@
+ // from the blocks' histograms and keeps the state in registers. The histograms alternate between two buffers (a
+ // block may still read pass p's while another writes pass p + 1's); the gather's counts go in the first, free from
+ // pass 3 on.
+-static __device__ __attribute__((aligned(256))) unsigned g_top_k_bar[128];   // count [0], generation [64]: two lines
++static __device__ __align__(256) unsigned g_top_k_bar[128];   // count [0], generation [64]: two lines
+ 
+ #define TOP_K_QSA_TAIL_PER_THREAD 8   // selection slots a thread of the fused kernel holds
+ 
+--- a/src/models/qwen4exp.cpp
++++ b/src/models/qwen4exp.cpp
+@@ -1187,7 +1187,7 @@
+         ggml_tensor * sel_idx;   // I32 [n_sel, n_t]
+         ggml_tensor * top_score; // F32 [n_top_pool, n_t]
+     };
+-    const auto select = [=, this](int64_t t0, int64_t n_t) -> slice_sel {
++    const auto select = [=](int64_t t0, int64_t n_t) -> slice_sel {
+         ggml_tensor * q_t = n_t == n_tokens ? q : ggml_view_3d(ctx0, q, idx_dim, n_idx_h, n_t, q->nb[1], q->nb[2], t0*q->nb[2]);
+ 
+         // the reference sums the rectified head scores unweighted, scaled by 1/sqrt(head_dim),
+@@ -1231,7 +1231,7 @@
+     };
+ 
+     // the visibility of a cell: from the positions, or the dense KQ mask
+-    const auto vis_of = [=, this](int64_t t0, int64_t n_t) -> std::pair<ggml_tensor *, ggml_tensor *> {
++    const auto vis_of = [=](int64_t t0, int64_t n_t) -> std::pair<ggml_tensor *, ggml_tensor *> {
+         if (pos_mode) {
+             return { inp_kpool->cell_pos,
+                      n_t == n_tokens ? inp_kpool->tok_pos : ggml_view_1d(ctx0, inp_kpool->tok_pos, n_t, t0*sizeof(int32_t)) };
+@@ -1265,7 +1265,7 @@
+     // with the context times the ubatch (4 GiB at 256k with 8192 tokens): the queries go by slices
+     // keeping that mask under 512 MiB (one sequence)
+     GGML_ASSERT(kq_mask->ne[0] == n_kv && kq_mask->ne[1]*kq_mask->ne[2]*kq_mask->ne[3] == n_tokens);
+-    const auto dense = [=, this](int64_t t0, int64_t n_t) {
++    const auto dense = [=](int64_t t0, int64_t n_t) {
+         const slice_sel ss  = select(t0, n_t);
+         const auto      vis = vis_of(t0, n_t);
+         ggml_tensor * sel = ggml_qsa_select(ctx0, ss.sel_idx, ss.top_score, vis.first, vis.second, (int32_t) kpool, GGML_QSA_SELECT_DENSE);

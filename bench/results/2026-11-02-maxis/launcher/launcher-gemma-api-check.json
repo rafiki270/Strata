@@ -1,0 +1,17 @@
+{
+  "model": "gemma4:26b",
+  "created_at": "2026-11-02T05:28:06.910993Z",
+  "message": {
+    "role": "assistant",
+    "content": "Paris"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 53811014900,
+  "load_duration": 3529500,
+  "prompt_eval_count": 24,
+  "prompt_eval_cached_count": 0,
+  "prompt_eval_duration": 45220004000,
+  "eval_count": 2,
+  "eval_duration": 8572331000
+}

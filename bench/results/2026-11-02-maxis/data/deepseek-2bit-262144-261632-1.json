@@ -1,0 +1,42 @@
+{
+  "label": "deepseek-2bit-262144",
+  "trial": 1,
+  "input_tokens_counted": 261632,
+  "requested_output_tokens": 512,
+  "prompt_sha256": "054f93ace7b244bfa8875c31f4c4ebdd6500dbed573531eb0e4f6db35afc66a7",
+  "prompt_seed": "maxis-20261102-261632-0",
+  "url": "http://127.0.0.1:8086",
+  "kind": "strata",
+  "utc": "2026-11-02T06:10:07Z",
+  "usage": {
+    "prompt_tokens": 261606,
+    "completion_tokens": 512,
+    "total_tokens": 262118,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 261606,
+    "prompt_ms": 360264.7,
+    "prompt_per_token_ms": 1.377,
+    "prompt_per_second": 726.1,
+    "predicted_n": 512,
+    "predicted_ms": 64518.2,
+    "predicted_per_token_ms": 126.012,
+    "predicted_per_second": 7.9,
+    "draft_n": 0,
+    "draft_n_accepted": 0
+  },
+  "finish_reason": "length",
+  "wall_seconds": 425.24555290001445,
+  "time_to_first_token_seconds": 360.74254180002026,
+  "answer": "The three audit codes, in order, are:\n\n1. BEGINNING AUDIT CODE: 6F3651F9D128\n2. MIDDLE AUDIT CODE: C99D2FBA8D3C\n3. END AUDIT CODE: CE080F5F6167\n\nChecklist: 100 practical steps for maintaining a software release archive\n\n1. Define the archive\u2019s scope and purpose in a written policy so that every stored release has a clear reason for being retained.\n2. Assign a single accountable owner for the release archive so that responsibility for curation, access, and integrity is unambiguous.\n3. Establish a formal retention schedule that specifies how long each release type, build artifact, and supporting document must be kept.\n4. Classify archived items by release status, such as stable, deprecated, experimental, or emergency hotfix, so retrieval and retention decisions are consistent.\n5. Create a controlled naming convention for releases and archive folders so that artifacts can be identified without relying on memory or informal labels.\n6. Record a unique release identifier for every archived build, including version number, build date, commit reference, and environment.\n7. Capture the exact source revision or commit hash associated with each release so the archived binary can be reproduced or audited later.\n8. Store build metadata such as compiler version, dependency lockfile, build flags, and operating system used for each release.\n9. Archive the release notes and changelog alongside the build so users and auditors can understand what changed in that version.\n10. Preserve the signed or checksummed manifest for each release so integrity can be verified independently of the storage medium.\n11. Generate cryptographic checksums for every archived artifact at ingestion time and store them in a separate manifest.\n12. Record file sizes, timestamps, and checksum values in an archive index so missing or altered files can be detected quickly.\n13. Use immutable or write-once storage for release artifacts where possible so archived binaries cannot be silently modified.\n14. Keep at least one offline or air-gapped copy of critical releases so ransomware or cloud outages do not destroy the only archive.\n15. Maintain at least two geographically or logically separate backup copies of the archive and verify both regularly.\n16. Encrypt archive storage and backups at rest so sensitive build artifacts and credentials are protected if media is lost or stolen.\n17. Restrict archive access using role-based permissions so only authorized release managers, auditors, and support staff can retrieve artifacts.\n18. Require multi-factor authentication for administrative access",
+  "expected_codes": [
+    "6F3651F9D128",
+    "C99D2FBA8D3C",
+    "CE080F5F6167"
+  ],
+  "retrieval_pass": true
+}

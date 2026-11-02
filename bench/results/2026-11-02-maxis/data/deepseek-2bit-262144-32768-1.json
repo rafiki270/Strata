@@ -1,0 +1,36 @@
+{
+  "label": "deepseek-2bit-262144",
+  "trial": 1,
+  "input_tokens_counted": 32768,
+  "requested_output_tokens": 512,
+  "prompt_sha256": "ee2fd8116d2ca30f71dd9ae0c7bc0ee01f1cc248a7063124790b8d1c4e304012",
+  "prompt_seed": "maxis-20261102-32768-0",
+  "url": "http://127.0.0.1:8086",
+  "kind": "strata",
+  "utc": "2026-11-02T06:03:56Z",
+  "usage": {
+    "prompt_tokens": 32742,
+    "completion_tokens": 512,
+    "total_tokens": 33254,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 32742,
+    "prompt_ms": 50446.0,
+    "prompt_per_token_ms": 1.541,
+    "prompt_per_second": 649.1,
+    "predicted_n": 512,
+    "predicted_ms": 60420.2,
+    "predicted_per_token_ms": 118.008,
+    "predicted_per_second": 8.5,
+    "draft_n": 0,
+    "draft_n_accepted": 0
+  },
+  "finish_reason": "length",
+  "wall_seconds": 110.9510150999995,
+  "time_to_first_token_seconds": 50.54314429999795,
+  "answer": "Here is a detailed numbered checklist of 100 practical steps for maintaining a software release archive, with a full explanatory sentence for each step.\n\n1. Define the archive's scope and purpose: Establish exactly which artifacts (source code, binaries, documentation, build logs, checksums, and metadata) the release archive must contain so that every future retrieval request can be satisfied consistently.\n2. Assign a single accountable archive owner: Name one person or team responsible for the archive's integrity, access control, retention decisions, and periodic audits so that responsibility never becomes ambiguous.\n3. Document an archive policy in writing: Create a formal policy covering retention periods, naming conventions, access rules, immutability requirements, and deletion procedures so that all contributors follow the same rules.\n4. Choose an immutable storage medium: Use write-once or versioned storage (such as object storage with versioning, WORM media, or a content-addressed repository) so that archived releases cannot be silently altered after publication.\n5. Establish a canonical naming convention: Define a strict pattern for release identifiers (for example, product-version-build-date-hash) so that every archived release can be located and referenced unambiguously.\n6. Record a unique release identifier for every release: Assign each release a stable ID independent of its marketing version number so that duplicate or renamed releases remain distinguishable in the archive.\n7. Capture complete build metadata: Store compiler versions, build tool versions, dependency lockfiles, environment variables, and build timestamps alongside each release so that the build can be reproduced or explained later.\n8. Archive the exact source revision: Preserve the commit hash, branch name, and tag associated with each release so that the archived binary can always be traced back to its precise source state.\n9. Store dependency manifests and lockfiles: Keep the resolved dependency lists and lockfiles for each release so that future auditors can reconstruct the exact dependency graph used at build time.\n10. Include reproducible build instructions: Archive the scripts, container definitions, and configuration files needed to rebuild the release so that reproducibility can be verified years later.\n11. Preserve build and test logs: Store the complete CI logs, test results, and coverage reports for each release so that quality evidence remains available for audits and incident investigations.\n12. Record checksums and cryptographic signatures: Generate and archive SHA-256 (or stronger) checksums and signing information for every artifact so that integrity can be verified on retrieval.\n13. Archive release notes and changelogs: Keep the official release notes, changelog entries,"
+}

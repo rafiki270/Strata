@@ -1,0 +1,35 @@
+{
+  "label": "qwen-iq3-installed",
+  "trial": 2,
+  "input_tokens_counted": 32768,
+  "requested_output_tokens": 512,
+  "prompt_sha256": "b922810c259d86ad03ffec6b10abeaa228fa57abc72a78897797eebd74c2e20e",
+  "url": "http://127.0.0.1:8085",
+  "kind": "strata",
+  "utc": "2026-11-02T04:47:21Z",
+  "usage": {
+    "prompt_tokens": 32728,
+    "completion_tokens": 512,
+    "total_tokens": 33240,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 32728,
+    "prompt_ms": 12379.1,
+    "prompt_per_token_ms": 0.378,
+    "prompt_per_second": 2643.8,
+    "predicted_n": 512,
+    "predicted_ms": 5926.5,
+    "predicted_per_token_ms": 11.575,
+    "predicted_per_second": 86.4,
+    "draft_n": 436,
+    "draft_n_accepted": 281
+  },
+  "finish_reason": "length",
+  "wall_seconds": 29.387164300016593,
+  "time_to_first_token_seconds": 12.4742724999669,
+  "answer": "Here is a detailed numbered checklist of 100 practical steps for maintaining a software release archive, based on standard software engineering best practices and archival integrity principles.\n\n1. Define a clear retention policy that specifies how long each type of software release must be kept.\n2. Establish a standardized naming convention for all archive files to ensure consistency and searchability.\n3. Assign a unique version number to every software release before archiving it.\n4. Generate a cryptographic hash (such as SHA-256) for every binary file to verify integrity later.\n5. Store the source code associated with the release in a version control system tag.\n6. Archive the build scripts and configuration files used to generate the release.\n7. Include the complete dependency list (e.g., package-lock.json, requirements.txt) in the archive.\n8. Save the changelog or release notes document that describes changes in the version.\n9. Archive the test reports and coverage metrics generated during the release validation.\n10. Include the license files and third-party attribution notices in the archive package.\n11. Store the digital signatures or certificates used to sign the release binaries.\n12. Create a manifest file that lists every file contained within the archive package.\n13. Compress the release artifacts into a standard format like ZIP or TAR.GZ for storage efficiency.\n14. Encrypt the archive package if it contains sensitive proprietary code or data.\n15. Assign metadata tags to the archive, such as release date, author, and environment.\n16. Store the archive in a dedicated, secure object storage bucket or server.\n17. Implement access control lists (ACLs) to restrict who can view or download the archive.\n18. Enable versioning on the storage bucket to prevent accidental overwrites of archives.\n19. Set up automated backups of the archive storage location to a secondary region.\n20. Verify the integrity of the archive immediately after uploading it to storage.\n21. Log the upload event with a timestamp and user ID for audit trail purposes.\n22. Link the archive location to the issue tracker or project management tool.\n23. Document the specific build environment details (OS, compiler version) in the metadata.\n24. Archive the database schema migrations associated with the release.\n25. Include the API documentation generated for that specific version.\n26. Store the container images (Docker) associated with the"
+}

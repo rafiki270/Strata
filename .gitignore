@@ -95,3 +95,7 @@ node_modules/
 /build-spark/
 /build-vision-spark/
 /.venv-build/
+
+# Optional machine-specific launcher registry
+/tools/local-models.json
+/engine-dsv41/

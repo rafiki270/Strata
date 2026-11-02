@@ -1,0 +1,42 @@
+{
+  "label": "deepseek-2bit-1048576",
+  "trial": 1,
+  "input_tokens_counted": 1048064,
+  "requested_output_tokens": 512,
+  "prompt_sha256": "18f52d09289d9ad122e0bd5525f55243ef9669e00cbf648d4bd20ae3f8e45ebc",
+  "prompt_seed": "maxis-20261102-1048064-0",
+  "url": "http://127.0.0.1:8086",
+  "kind": "strata",
+  "utc": "2026-11-02T06:33:14Z",
+  "usage": {
+    "prompt_tokens": 1048038,
+    "completion_tokens": 512,
+    "total_tokens": 1048550,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 1048038,
+    "prompt_ms": 1706205.9,
+    "prompt_per_token_ms": 1.628,
+    "prompt_per_second": 614.3,
+    "predicted_n": 512,
+    "predicted_ms": 63679.3,
+    "predicted_per_token_ms": 124.374,
+    "predicted_per_second": 8.0,
+    "draft_n": 0,
+    "draft_n_accepted": 0
+  },
+  "finish_reason": "length",
+  "wall_seconds": 1771.6015811000252,
+  "time_to_first_token_seconds": 1707.934960899991,
+  "answer": "The three audit codes, in order, are:\n\n1. BEGINNING AUDIT CODE: 43E5881B6369\n2. MIDDLE AUDIT CODE: F5D20AC6C735\n3. END AUDIT CODE: 989B18BAC45D\n\nChecklist: 100 practical steps for maintaining a software release archive\n\n1. Define the archive\u2019s scope and purpose in a written policy so that every retained release has a clear reason for being stored.\n2. Assign a single accountable owner for the release archive so that responsibility for retention, access, and integrity is unambiguous.\n3. Establish a formal retention schedule that states how long each release type must be kept and when disposal is permitted.\n4. Classify releases by criticality, customer impact, regulatory relevance, and support status so retention decisions are consistent.\n5. Record a unique release identifier for every artifact so that releases can be located and referenced without ambiguity.\n6. Capture the release date, version number, build number, and product name in a structured metadata record for each release.\n7. Store the source commit hash or equivalent provenance marker with each release so the exact code state can be reconstructed.\n8. Record the build environment and toolchain versions used for each release so reproducibility can be assessed later.\n9. Preserve the signed or hashed checksum of each release artifact so integrity can be verified after storage or transfer.\n10. Keep the release notes and changelog with each release so the archive contains the documented behavior and changes.\n11. Retain the approved test results and quality evidence associated with each release so acceptance decisions can be audited.\n12. Store security scan results and vulnerability reports with each release so later risk reviews can reference the original findings.\n13. Preserve dependency manifests and lock files with each release so dependency state can be reconstructed.\n14. Record the exact configuration files or configuration baselines used at release time so environment-specific behavior can be understood.\n15. Keep deployment manifests and infrastructure definitions with each release so deployment history can be reconstructed.\n16. Store database migration scripts or schema versions associated with each release so data compatibility can be traced.\n17. Preserve API documentation and interface definitions for each release so consumers can understand historical contracts.\n18. Retain user-facing documentation and help content for each release so support staff can answer historical questions.\n19. Store licensing and third-party notices for each release so legal and compliance obligations remain visible.\n20. Record the approval chain and sign-off identities for each release so governance can be audited",
+  "expected_codes": [
+    "43E5881B6369",
+    "F5D20AC6C735",
+    "989B18BAC45D"
+  ],
+  "retrieval_pass": true
+}

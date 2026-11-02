@@ -1,0 +1,13 @@
+[strata] 2026-11-02 06:31:54 engine started: <run-root>\engine-dsv41\0.1.55-windows-x86_64-cuda-cuda13\strata-dsv41.exe --serve --pack <run-root>\build-local\data\packs\deepseek-v4.1-flash-ist-das-2.00bpw --max-context 1048576 --eos 1 --vision off --dspark auto --dspark-conf 0.65
+ds4: tensor parallel 2 -> 1: the experts' 256-value blocks split n_ff 2304 no other way (each GPU its own layers)
+ds4: DSpark not loaded: the routed experts (132 GB) are far more than the GPU holds (24 GB), where its verify rounds read 3.3x a token's bytes and gain nothing (--dspark on loads it anyway)
+ds4: the experts VRAM leaves over (~119.7 GB) are read in place from the model's files (--mmap-experts off copies them into RAM) (91.7 GB of RAM free to keep them: the most-routed 0.0 GB read ahead; prompts in chunks of 8192)
+ds4: RAM store: 88.3 GB of RAM free after the GPU's weights: store sized 76.3 GB, not 83.4
+ds4: RAM store: up to 7427 slots of 10.3 MB (76.3 GB), policy 0, 8 reader threads, unbuffered reads
+ds4: RAM store: 7427 of the profile's hottest experts read in (57.7 GB) in 16.2 s
+ds4: prompt path: the chunked pass from 96 tokens, windows of 16 below
+ds4: CUDA0 layers [0, 39] + head: weights 5.86 GB, experts 12.74 GB (1442 of 15360 in VRAM), caches 0.97 GB, 548 MiB free
+ds4: 13918 routed experts on the CPU lane (120.1 GB, in place in the model's files), 16 threads
+maya ds4 serve: GEN <max_new> [keys] <ids>; GENI <max_new> [keys] <pictures> <ids>; STOP, QUIT
+ds4 slots: folder <run-root>\build-local\ds4-slots: 0 conversation(s) kept from earlier runs (0.00 GB)
+maya ds4 serve: prompt 1048038 tokens = 0 reused + 1048038 read in 1706206 ms (614.3 tok/s), 512 generated in 63679 ms (8.04 tok/s); CPU lane 0.1% of the experts

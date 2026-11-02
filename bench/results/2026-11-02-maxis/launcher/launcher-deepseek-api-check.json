@@ -1,0 +1,49 @@
+{
+  "health": {
+    "status": "ok",
+    "max_context": 1048576,
+    "model": "deepseek-v4.1-flash",
+    "images": false,
+    "api_key": false,
+    "image_generation": false,
+    "loaded": true,
+    "service": "strata"
+  },
+  "response": {
+    "id": "chatcmpl-50dbd242cbae49f4b40cd252",
+    "object": "chat.completion",
+    "created": 1793624270,
+    "model": "deepseek-v4.1-flash",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "Paris"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 18,
+      "completion_tokens": 2,
+      "total_tokens": 20,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 18,
+      "prompt_ms": 2790.8,
+      "prompt_per_token_ms": 155.044,
+      "prompt_per_second": 6.4,
+      "predicted_n": 2,
+      "predicted_ms": 199.7,
+      "predicted_per_token_ms": 99.85,
+      "predicted_per_second": 10.0,
+      "draft_n": 0,
+      "draft_n_accepted": 0
+    }
+  }
+}

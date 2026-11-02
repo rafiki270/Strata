@@ -1,0 +1,361 @@
+**********************************************************************
+** Visual Studio 2022 Developer Command Prompt v17.14.42
+** Copyright (c) 2025 Microsoft Corporation
+**********************************************************************
+[vcvarsall.bat] Environment initialized for: 'x64'
+-- llama.cpp version: 0.8.0-dev
+CMAKE_BUILD_TYPE=Release
+-- Warning: ccache not found - consider installing it for faster compilation or disable this warning with GGML_CCACHE=OFF
+-- CMAKE_SYSTEM_PROCESSOR: AMD64
+-- CMAKE_GENERATOR_PLATFORM:
+-- GGML_SYSTEM_ARCH: x86
+-- Including CPU backend
+-- x86 detected
+-- Adding CPU backend variant ggml-cpu: /arch:AVX512 GGML_AVX512
+-- CUDA Toolkit found
+-- Using CMAKE_CUDA_ARCHITECTURES=86 CMAKE_CUDA_ARCHITECTURES_NATIVE=86-real
+-- FlashAttention K-V type combinations: f16-f16;q4_0-q4_0;q8_0-q8_0;bf16-bf16;q8_0-q4_0
+-- Could NOT find NCCL (missing: NCCL_LIBRARY NCCL_INCLUDE_DIR)
+-- Warning: NCCL not found, performance for multiple CUDA GPUs will be suboptimal
+-- Including CUDA backend
+-- ggml version: 0.28.0
+-- ggml commit:  a91372e-dirty
+-- Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR (missing: OPENSSL_CRYPTO_LIBRARY OPENSSL_INCLUDE_DIR)
+CMake Warning at vendor/cpp-httplib/CMakeLists.txt:154 (message):
+  OpenSSL not found, HTTPS support disabled
+
+
+-- Generating embedded license file for target: llama-app
+-- Configuring done (3.4s)
+-- Generating done (0.2s)
+-- Build files have been written to: D:/Worktrees/Strata/deepseek-avalon-20261102/build-local/avalon-build
+[1/182] Building CXX object src\CMakeFiles\llama.dir\Unity\unity_5_cxx.cxx.obj
+[2/182] Building CXX object src\CMakeFiles\llama.dir\Unity\unity_8_cxx.cxx.obj
+[3/182] Building CXX object src\CMakeFiles\llama.dir\Unity\unity_6_cxx.cxx.obj
+[4/182] Building CXX object src\CMakeFiles\llama.dir\Unity\unity_2_cxx.cxx.obj
+[5/182] Building CXX object src\CMakeFiles\llama.dir\Unity\unity_4_cxx.cxx.obj
+[6/182] Building CXX object src\CMakeFiles\llama.dir\Unity\unity_3_cxx.cxx.obj
+[7/182] Building CXX object src\CMakeFiles\llama.dir\Unity\unity_0_cxx.cxx.obj
+[8/182] Building CXX object src\CMakeFiles\llama.dir\llama.cpp.obj
+[9/182] Building CXX object src\CMakeFiles\llama.dir\Unity\unity_1_cxx.cxx.obj
+[10/182] Building CXX object src\CMakeFiles\llama.dir\llama-arch.cpp.obj
+[11/182] Building CXX object src\CMakeFiles\llama.dir\llama-adapter.cpp.obj
+[12/182] Building CXX object src\CMakeFiles\llama.dir\llama-batch.cpp.obj
+[13/182] Building CXX object src\CMakeFiles\llama.dir\llama-cparams.cpp.obj
+[14/182] Building CXX object src\CMakeFiles\llama.dir\llama-chat.cpp.obj
+[15/182] Building CXX object src\CMakeFiles\llama.dir\llama-context.cpp.obj
+[16/182] Building CXX object src\CMakeFiles\llama.dir\llama-hparams.cpp.obj
+[17/182] Building CXX object src\CMakeFiles\llama.dir\llama-grammar.cpp.obj
+[18/182] Building CXX object src\CMakeFiles\llama.dir\llama-impl.cpp.obj
+[19/182] Building CXX object src\CMakeFiles\llama.dir\llama-io.cpp.obj
+[20/182] Building CXX object src\CMakeFiles\llama.dir\llama-graph.cpp.obj
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\memory(3630): warning C4244: 'argument': conversion from 'const int64_t' to 'uint32_t', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\memory(3630): note: the template instantiation context (the oldest one first) is
+<run-root>\build-local\Avalon\src\llama-graph.cpp(2732): note: see reference to function template instantiation 'std::unique_ptr<llm_graph_input_out_ids,std::default_delete<llm_graph_input_out_ids>> std::make_unique<llm_graph_input_out_ids,const llama_hparams&,const llama_cparams&,const int64_t&,0>(const llama_hparams &,const llama_cparams &,const int64_t &)' being compiled
+[21/182] Building CXX object src\CMakeFiles\llama.dir\llama-kv-cache-iswa.cpp.obj
+[22/182] Building CXX object src\CMakeFiles\llama.dir\llama-kv-cache-dsa.cpp.obj
+[23/182] Building CXX object src\CMakeFiles\llama.dir\llama-kv-cache-dsa-iswa.cpp.obj
+[24/182] Building CXX object src\CMakeFiles\llama.dir\llama-kv-cache-msa.cpp.obj
+[25/182] Building CXX object src\CMakeFiles\llama.dir\llama-kv-cache.cpp.obj
+[26/182] Building CXX object src\CMakeFiles\llama.dir\llama-memory.cpp.obj
+[27/182] Building CXX object src\CMakeFiles\llama.dir\llama-memory-hybrid.cpp.obj
+[28/182] Building CXX object src\CMakeFiles\llama.dir\llama-memory-hybrid-iswa.cpp.obj
+[29/182] Building CXX object src\CMakeFiles\llama.dir\llama-kv-cache-dsv4.cpp.obj
+[30/182] Building CXX object src\CMakeFiles\llama.dir\llama-mmap.cpp.obj
+[31/182] Building CXX object src\CMakeFiles\llama.dir\llama-memory-hybrid-idx.cpp.obj
+[32/182] Building CXX object src\CMakeFiles\llama.dir\llama-memory-recurrent.cpp.obj
+[33/182] Building CXX object src\CMakeFiles\llama.dir\llama-model-saver.cpp.obj
+[34/182] Building CXX object src\CMakeFiles\llama.dir\llama-model-loader.cpp.obj
+[35/182] Building CXX object src\CMakeFiles\llama.dir\llama-quant.cpp.obj
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\type_traits(1680): warning C4244: 'argument': conversion from 'unsigned __int64' to 'int', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\type_traits(1680): note: the template instantiation context (the oldest one first) is
+<run-root>\build-local\Avalon\src\llama-quant.cpp(281): note: see reference to function template instantiation 'std::thread &std::vector<std::thread,std::allocator<std::thread>>::emplace_back<llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675>&,ggml_type&,const uint8_t*,float*,size_t&>(llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675> &,ggml_type &,const uint8_t *&&,float *&&,size_t &)' being compiled
+<run-root>\build-local\Avalon\src\llama-quant.cpp(281): note: see the first reference to 'std::vector<std::thread,std::allocator<std::thread>>::emplace_back' in 'llama_tensor_dequantize_impl'
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\vector(924): note: see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_one_at_back<llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675>&,ggml_type&,const unsigned char*,float*,size_t&>(llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675> &,ggml_type &,const unsigned char *&&,float *&&,size_t &)' being compiled
+        with
+        [
+            _Ty=std::thread
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\vector(845): note: see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_back_with_unused_capacity<llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675>&,ggml_type&,const unsigned char*,float*,size_t&>(llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675> &,ggml_type &,const unsigned char *&&,float *&&,size_t &)' being compiled
+        with
+        [
+            _Ty=std::thread
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\vector(863): note: see reference to function template instantiation 'void std::_Default_allocator_traits<_Alloc>::construct<_Ty,llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675>&,ggml_type&,const unsigned char*,float*,size_t&>(_Alloc &,_Objty *const ,llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675> &,ggml_type &,const unsigned char *&&,float *&&,size_t &)' being compiled
+        with
+        [
+            _Alloc=std::allocator<std::thread>,
+            _Ty=std::thread,
+            _Objty=std::thread
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\xmemory(732): note: see reference to function template instantiation 'std::thread::thread<llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675>&,ggml_type&,_T,float*,size_t&,0>(_Fn,ggml_type &,_T &&,float *&&,size_t &)' being compiled
+        with
+        [
+            _T=const uint8_t *,
+            _Fn=llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675> &
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\thread(93): note: see reference to function template instantiation 'void std::thread::_Start<llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675>&,ggml_type&,_Ty,float*,size_t&>(_Fn,ggml_type &,_Ty &&,float *&&,size_t &)' being compiled
+        with
+        [
+            _Ty=const uint8_t *,
+            _Fn=llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675> &
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\thread(76): note: see reference to function template instantiation 'unsigned int (__cdecl *std::thread::_Get_invoke<std::thread::_Start::_Tuple,0,1,2,3,4>(std::integer_sequence<size_t,0,1,2,3,4>) noexcept)(void *) noexcept' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\thread(67): note: see reference to function template instantiation 'unsigned int std::thread::_Invoke<_Tuple,0,1,2,3,4>(void *) noexcept' being compiled
+        with
+        [
+            _Tuple=std::thread::_Start::_Tuple
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\thread(60): note: see reference to function template instantiation 'void std::invoke<llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675>,ggml_type,const uint8_t*,_Ty*,unsigned __int64>(_Callable &&,_Ty1 &&,const uint8_t *&&,_Ty *&&,unsigned __int64 &&) noexcept(false)' being compiled
+        with
+        [
+            _Ty=float,
+            _Callable=llama_tensor_dequantize_impl::<lambda_6e14450badcd7ae123f95ac8df82d675>,
+            _Ty1=ggml_type
+        ]
+[36/182] Building CXX object src\CMakeFiles\llama.dir\llama-model.cpp.obj
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): warning C4244: 'initializing': conversion from '_Ty' to '_Ty2', possible loss of data
+        with
+        [
+            _Ty=int64_t
+        ]
+        and
+        [
+            _Ty2=uint32_t
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): note: the template instantiation context (the oldest one first) is
+<run-root>\build-local\Avalon\src\llama-model.cpp(663): note: see reference to function template instantiation 'std::pair<int64_t,uint32_t>::pair<const int64_t&,int64_t,0>(_Other1,_Other2 &&) noexcept' being compiled
+        with
+        [
+            _Other1=const int64_t &,
+            _Other2=int64_t
+        ]
+<run-root>\build-local\Avalon\src\llama-model.cpp(663): note: see the first reference to 'std::pair<int64_t,uint32_t>::pair' in 'llama_meta_device_get_split_state::<lambda_6c9efbe03ee97a5a4df4977805b99651>::operator ()'
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): warning C4244: 'initializing': conversion from 'const int64_t' to '_Ty2', possible loss of data
+        with
+        [
+            _Ty2=uint32_t
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): note: the template instantiation context (the oldest one first) is
+<run-root>\build-local\Avalon\src\llama-model.cpp(666): note: see reference to function template instantiation 'std::pair<int64_t,uint32_t>::pair<const int64_t&,const int64_t&,0>(_Other1,_Other2) noexcept' being compiled
+        with
+        [
+            _Other1=const int64_t &,
+            _Other2=const int64_t &
+        ]
+<run-root>\build-local\Avalon\src\llama-model.cpp(666): note: see the first reference to 'std::pair<int64_t,uint32_t>::pair' in 'llama_meta_device_get_split_state::<lambda_6c9efbe03ee97a5a4df4977805b99651>::operator ()'
+[37/182] Building CXX object src\CMakeFiles\llama.dir\llama-sampler.cpp.obj
+[38/182] Building CXX object src\CMakeFiles\llama.dir\unicode.cpp.obj
+[39/182] Building CXX object src\CMakeFiles\llama.dir\llama-vocab.cpp.obj
+[40/182] Building C object vendor\hash\CMakeFiles\vendor-hash.dir\xxhash\xxhash.c.obj
+[41/182] Building CXX object vendor\hash\CMakeFiles\vendor-hash.dir\hash.cpp.obj
+[42/182] Building CXX object vendor\hash\CMakeFiles\vendor-hash.dir\sha1\sha1.c.obj
+[43/182] Building C object vendor\hash\CMakeFiles\vendor-hash.dir\sha256\sha256.c.obj
+[44/182] Building CXX object common\CMakeFiles\llama-common-base.dir\build-info.cpp.obj
+[45/182] Linking CXX static library vendor\hash\vendor-hash.lib
+[46/182] Linking CXX static library common\llama-common-base.lib
+[47/182] Linking CUDA shared library bin\ggml-cuda.dll
+[48/182] Linking CXX shared library bin\ggml.dll
+[49/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\parsers.cpp.obj
+[50/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\cohere2moe.cpp.obj
+[51/182] Building CXX object vendor\cpp-httplib\CMakeFiles\cpp-httplib.dir\httplib.cpp.obj
+[52/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\deepseek.cpp.obj
+[53/182] Linking CXX static library vendor\cpp-httplib\cpp-httplib.lib
+[54/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\functionary-v3-2.cpp.obj
+[55/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\gemma4.cpp.obj
+[56/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\gigachat-v3.cpp.obj
+[57/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\gpt-oss.cpp.obj
+[58/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\harmony-xml.cpp.obj
+[59/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\k2-horizon.cpp.obj
+[60/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\kimi-k2.cpp.obj
+[61/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\kimi-k3.cpp.obj
+[62/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\ling3.cpp.obj
+[63/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\lfm2.cpp.obj
+[64/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\llm-jp-harmony.cpp.obj
+[65/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\minicpm5.cpp.obj
+[66/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\minimax-m3.cpp.obj
+[67/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\ministral3.cpp.obj
+[68/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\muse-glimmer.cpp.obj
+[69/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\qwen3-coder.cpp.obj
+[70/182] Building CXX object common\CMakeFiles\llama-common.dir\parsers\translate-gemma.cpp.obj
+[71/182] Building CXX object common\CMakeFiles\llama-common.dir\chat-auto-parser-helpers.cpp.obj
+[72/182] Building CXX object common\CMakeFiles\llama-common.dir\chat-auto-parser-generator.cpp.obj
+[73/182] Building CXX object common\CMakeFiles\llama-common.dir\chat-peg-parser.cpp.obj
+[74/182] Building CXX object common\CMakeFiles\llama-common.dir\chat-diff-analyzer.cpp.obj
+[75/182] Building CXX object common\CMakeFiles\llama-common.dir\common.cpp.obj
+[76/182] Building CXX object common\CMakeFiles\llama-common.dir\chat.cpp.obj
+[77/182] Building CXX object common\CMakeFiles\llama-common.dir\console.cpp.obj
+[78/182] Building CXX object common\CMakeFiles\llama-common.dir\debug.cpp.obj
+[79/182] Building CXX object common\CMakeFiles\llama-common.dir\fit.cpp.obj
+[80/182] Building CXX object common\CMakeFiles\llama-common.dir\file-lock.cpp.obj
+[81/182] Building CXX object common\CMakeFiles\llama-common.dir\download.cpp.obj
+[82/182] Building CXX object common\CMakeFiles\llama-common.dir\imatrix-loader.cpp.obj
+[83/182] Building CXX object common\CMakeFiles\llama-common.dir\hf-cache.cpp.obj
+[84/182] Building CXX object src\CMakeFiles\llama.dir\unicode-data.cpp.obj
+[85/182] Linking CXX shared library bin\llama.dll
+[86/182] Building CXX object common\CMakeFiles\llama-common.dir\arg.cpp.obj
+[87/182] Building CXX object common\CMakeFiles\llama-common.dir\llguidance.cpp.obj
+[88/182] Building CXX object common\CMakeFiles\llama-common.dir\json-schema.cpp.obj
+[89/182] Building CXX object common\CMakeFiles\llama-common.dir\json-schema-to-grammar.cpp.obj
+[90/182] Building CXX object common\CMakeFiles\llama-common.dir\log.cpp.obj
+[91/182] Building CXX object common\CMakeFiles\llama-common.dir\ngram-cache.cpp.obj
+[92/182] Building CXX object common\CMakeFiles\llama-common.dir\ngram-mod.cpp.obj
+[93/182] Building CXX object common\CMakeFiles\llama-common.dir\ngram-map.cpp.obj
+[94/182] Building CXX object common\CMakeFiles\llama-common.dir\json.cpp.obj
+[95/182] Building CXX object common\CMakeFiles\llama-common.dir\reasoning-budget.cpp.obj
+[96/182] Building CXX object common\CMakeFiles\llama-common.dir\preset.cpp.obj
+[97/182] Building CXX object common\CMakeFiles\llama-common.dir\sampling.cpp.obj
+[98/182] Building CXX object common\CMakeFiles\llama-common.dir\peg-parser.cpp.obj
+[99/182] Building CXX object common\CMakeFiles\llama-common.dir\subproc.cpp.obj
+[100/182] Building CXX object common\CMakeFiles\llama-common.dir\unicode.cpp.obj
+[101/182] Building CXX object common\CMakeFiles\llama-common.dir\trie.cpp.obj
+[102/182] Building CXX object common\CMakeFiles\llama-common.dir\speculative.cpp.obj
+[103/182] Building CXX object common\CMakeFiles\llama-common.dir\jinja\lexer.cpp.obj
+[104/182] Building CXX object common\CMakeFiles\llama-common.dir\jinja\runtime.cpp.obj
+[105/182] Building CXX object common\CMakeFiles\llama-common.dir\jinja\string.cpp.obj
+[106/182] Building CXX object common\CMakeFiles\llama-common.dir\jinja\parser.cpp.obj
+[107/182] Building CXX object common\CMakeFiles\llama-common.dir\jinja\value.cpp.obj
+[108/182] Building CXX object common\CMakeFiles\llama-common.dir\jinja\caps.cpp.obj
+[109/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\mtmd.cpp.obj
+[110/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\mtmd-audio.cpp.obj
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: '=': conversion from 'const _Ty' to 'float', possible loss of data
+        with
+        [
+            _Ty=double
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: the template instantiation context (the oldest one first) is
+<run-root>\build-local\Avalon\tools\mtmd\mtmd-audio.cpp(323): note: see reference to function template instantiation 'void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,double>(const _FwdIt,const _FwdIt,const double &)' being compiled
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: '=': conversion from 'const _Ty' to 'float', possible loss of data
+        with
+        [
+            _Ty=int
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: the template instantiation context (the oldest one first) is
+<run-root>\build-local\Avalon\tools\mtmd\mtmd-audio.cpp(407): note: see reference to function template instantiation 'void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)' being compiled
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\type_traits(1680): warning C4244: 'argument': conversion from '__int64' to 'int', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\type_traits(1680): note: the template instantiation context (the oldest one first) is
+<run-root>\build-local\Avalon\tools\mtmd\mtmd-audio.cpp(1354): note: see reference to function template instantiation 'std::thread::thread<void(__cdecl &)(int,const float *,int,const std::vector<float,std::allocator<float>> &,int,int,int,int,int,const mtmd_audio_cache &,mtmd_audio_mel &),int,const float*&,const int&,std::reference_wrapper<const std::vector<float,std::allocator<float>>>,unsigned __int64,const int&,const int&,const int&,int64_t&,std::reference_wrapper<const mtmd_audio_cache>,std::reference_wrapper<mtmd_audio_mel>,0>(_Fn,int &&,const float *&,const int &,std::reference_wrapper<const std::vector<float,std::allocator<float>>> &&,unsigned __int64 &&,const int &,const int &,const int &,int64_t &,std::reference_wrapper<const mtmd_audio_cache> &&,std::reference_wrapper<mtmd_audio_mel> &&)' being compiled
+        with
+        [
+            _Fn=void (__cdecl &)(int,const float *,int,const std::vector<float,std::allocator<float>> &,int,int,int,int,int,const mtmd_audio_cache &,mtmd_audio_mel &)
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\thread(93): note: see reference to function template instantiation 'void std::thread::_Start<void(__cdecl &)(int,const float *,int,const std::vector<float,std::allocator<float>> &,int,int,int,int,int,const mtmd_audio_cache &,mtmd_audio_mel &),_Ty,const float*&,const int&,std::reference_wrapper<const std::vector<float,std::allocator<float>>>,unsigned __int64,const int&,const int&,const int&,int64_t&,std::reference_wrapper<const mtmd_audio_cache>,std::reference_wrapper<mtmd_audio_mel>>(_Fn,_Ty &&,const float *&,const int &,std::reference_wrapper<const std::vector<float,std::allocator<float>>> &&,unsigned __int64 &&,const int &,const int &,const int &,int64_t &,std::reference_wrapper<const mtmd_audio_cache> &&,std::reference_wrapper<mtmd_audio_mel> &&)' being compiled
+        with
+        [
+            _Ty=int,
+            _Fn=void (__cdecl &)(int,const float *,int,const std::vector<float,std::allocator<float>> &,int,int,int,int,int,const mtmd_audio_cache &,mtmd_audio_mel &)
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\thread(76): note: see reference to function template instantiation 'unsigned int (__cdecl *std::thread::_Get_invoke<std::thread::_Start::_Tuple,0,1,2,3,4,5,6,7,8,9,10,11>(std::integer_sequence<size_t,0,1,2,3,4,5,6,7,8,9,10,11>) noexcept)(void *) noexcept' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\thread(67): note: see reference to function template instantiation 'unsigned int std::thread::_Invoke<_Tuple,0,1,2,3,4,5,6,7,8,9,10,11>(void *) noexcept' being compiled
+        with
+        [
+            _Tuple=std::thread::_Start::_Tuple
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\thread(60): note: see reference to function template instantiation 'void std::invoke<void(__cdecl *)(int,const float *,int,const std::vector<float,std::allocator<float>> &,int,int,int,int,int,const mtmd_audio_cache &,mtmd_audio_mel &),int,const float*,int,std::reference_wrapper<const std::vector<float,std::allocator<float>>>,unsigned __int64,int,int,int,__int64,std::reference_wrapper<const mtmd_audio_cache>,std::reference_wrapper<mtmd_audio_mel>>(_Callable &&,_Ty1 &&,const float *&&,int &&,std::reference_wrapper<const std::vector<float,std::allocator<float>>> &&,unsigned __int64 &&,int &&,int &&,int &&,__int64 &&,std::reference_wrapper<const mtmd_audio_cache> &&,std::reference_wrapper<mtmd_audio_mel> &&) noexcept(false)' being compiled
+        with
+        [
+            _Callable=void (__cdecl *)(int,const float *,int,const std::vector<float,std::allocator<float>> &,int,int,int,int,int,const mtmd_audio_cache &,mtmd_audio_mel &),
+            _Ty1=int
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\type_traits(1680): warning C4244: 'argument': conversion from 'unsigned __int64' to 'int', possible loss of data
+[111/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\mtmd-image.cpp.obj
+[112/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\mtmd-helper-gen.cpp.obj
+[113/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\cogvlm.cpp.obj
+[114/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\mtmd-helper.cpp.obj
+[115/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\conformer.cpp.obj
+[116/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\deepseek4v.cpp.obj
+[117/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\dots3note.cpp.obj
+[118/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\dotsocr.cpp.obj
+[119/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\clip.cpp.obj
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: '=': conversion from 'const _Ty' to 'float', possible loss of data
+        with
+        [
+            _Ty=double
+        ]
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: the template instantiation context (the oldest one first) is
+<run-root>\build-local\Avalon\tools\mtmd\clip.cpp(5193): note: see reference to function template instantiation 'void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,double>(const _FwdIt,const _FwdIt,const double &)' being compiled
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+[120/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\exaone4_5.cpp.obj
+[121/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\gemma4a.cpp.obj
+[122/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\gemma4v.cpp.obj
+[123/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\gemma4ua.cpp.obj
+[124/182] Provisioning UI assets
+-- UI: downloading from b1: https://huggingface.co/buckets/ggml-org/llama-ui/resolve/b1/dist.tar.gz
+-- UI: download dist.tar.gz.sha256 from b1 failed: "HTTP response code said error"
+-- UI: downloading from latest: https://huggingface.co/buckets/ggml-org/llama-ui/resolve/latest/dist.tar.gz
+-- UI: archive verified and extracted
+-- UI: HF download succeeded, stamp updated (ggml-org/llama-ui|b1, resolved: latest)
+-- UI: gzip compression applied (D:/Worktrees/Strata/deepseek-avalon-20261102/build-local/avalon-build/tools/ui/ui-gzip/_gzip)
+-- UI: embedded 70 assets
+[125/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\gemma4uv.cpp.obj
+[126/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\glm4v.cpp.obj
+[127/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\granite-speech.cpp.obj
+[128/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\granite4-vision.cpp.obj
+[129/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\hunyuanvl.cpp.obj
+[130/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\internvl.cpp.obj
+[131/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\kimivl.cpp.obj
+[132/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\kimik25.cpp.obj
+[133/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\nemotron-v2-vl.cpp.obj
+[134/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\muse-glimmer.cpp.obj
+[135/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\llama4.cpp.obj
+[136/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\llava.cpp.obj
+[137/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\minicpmv.cpp.obj
+[138/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\paddleocr.cpp.obj
+[139/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\pixtral.cpp.obj
+[140/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\qwen2vl.cpp.obj
+[141/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\sensenova-u1.cpp.obj
+[142/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\minimax-m3.cpp.obj
+[143/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\qwen3vl.cpp.obj
+[144/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\ling3vl.cpp.obj
+[145/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\mimovl.cpp.obj
+[146/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\qwen3a.cpp.obj
+[147/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\mimo-audio.cpp.obj
+[148/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\qwen3tts-spkenc.cpp.obj
+[149/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\pockettts-seanet.cpp.obj
+[150/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\qwen3tts-gen.cpp.obj
+[151/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\pockettts-spkenc.cpp.obj
+[152/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\step3vl.cpp.obj
+[153/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\pockettts-gen.cpp.obj
+[154/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\siglip.cpp.obj
+[155/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\whisper-enc.cpp.obj
+[156/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\deepseekocr2.cpp.obj
+[157/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\deepseekocr.cpp.obj
+[158/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\mobilenetv5.cpp.obj
+[159/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\youtuvl.cpp.obj
+[160/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\yasa2.cpp.obj
+[161/182] Building CXX object tools\mtmd\CMakeFiles\mtmd.dir\models\parakeet.cpp.obj
+[162/182] Linking CXX shared library bin\llama-common.dll
+[163/182] Building CXX object tools\ui\CMakeFiles\llama-ui.dir\ui.cpp.obj
+[164/182] Building CXX object tools\server\CMakeFiles\server-context.dir\server-chat.cpp.obj
+[165/182] Building CXX object tools\server\CMakeFiles\server-context.dir\server-task.cpp.obj
+[166/182] Building CXX object tools\server\CMakeFiles\server-context.dir\server-queue.cpp.obj
+[167/182] Building CXX object tools\server\CMakeFiles\server-context.dir\server-decision.cpp.obj
+[168/182] Building CXX object tools\server\CMakeFiles\server-context.dir\server-common.cpp.obj
+[169/182] Building CXX object tools\server\CMakeFiles\server-context.dir\server-stream.cpp.obj
+[170/182] Building CXX object tools\server\CMakeFiles\server-context.dir\server-context.cpp.obj
+[171/182] Building CXX object tools\server\CMakeFiles\server-context.dir\server-mcp.cpp.obj
+[172/182] Linking CXX static library tools\ui\llama-ui.lib
+[173/182] Linking CXX shared library bin\mtmd.dll
+[174/182] Building CXX object tools\server\CMakeFiles\server-context.dir\server-tools.cpp.obj
+[175/182] Building CXX object tools\server\CMakeFiles\server-context.dir\server-schema.cpp.obj
+[176/182] Linking CXX static library tools\server\server-context.lib
+[177/182] Building CXX object tools\server\CMakeFiles\llama-server.dir\main.cpp.obj
+[178/182] Building CXX object tools\server\CMakeFiles\llama-server-impl.dir\server-http.cpp.obj
+[179/182] Building CXX object tools\server\CMakeFiles\llama-server-impl.dir\server.cpp.obj
+[180/182] Building CXX object tools\server\CMakeFiles\llama-server-impl.dir\server-models.cpp.obj
+[181/182] Linking CXX shared library bin\llama-server-impl.dll
+[182/182] Linking CXX executable bin\llama-server.exe
