@@ -30,6 +30,13 @@ URLS = tuple(entry.get('url', 'http://127.0.0.1:8080/v1') for entry in ENTRIES)
 FLAGS = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
 
 
+def context_label(tokens):
+    return '1M' if tokens == 1048576 else f'{tokens // 1024}K' if tokens % 1024 == 0 else str(tokens)
+
+
+CONTEXT_VALUES = {context_label(n): n for entry in ENTRIES for n in entry.get('contexts', [262144])}
+
+
 def initial_selection():
     try:
         key = json.loads(STATE.read_text())['key']
@@ -141,11 +148,20 @@ class Backend:
         except (requests.RequestException, ValueError, KeyError):
             return 'API not responding'
 
+    def require_api_free(self, base):
+        try:
+            requests.get(base+'/health', timeout=2)
+        except requests.ConnectionError:
+            return
+        raise RuntimeError('The API port is occupied by another service. It was preserved.')
+
     def start(self, index):
         self.ensure_proxy()
         entry = ENTRIES[index]
         if entry['kind'] == 'ollama':
             self.stop_server()
+            for base in {e.get('base','http://127.0.0.1:8080') for e in ENTRIES if e['kind']=='strata'}:
+                self.require_api_free(base)
             self.ensure_ollama(entry)
             for model in self.loaded():
                 if model['name'] != entry['model_id']:
@@ -170,12 +186,7 @@ class Backend:
                 return status
         self.stop_server()
         base = entry.get('base','http://127.0.0.1:8080')
-        try:
-            requests.get(base+'/health', timeout=2)
-        except requests.ConnectionError:
-            pass
-        else:
-            raise RuntimeError('The API port is occupied by another service. It was preserved.')
+        self.require_api_free(base)
         for model in self.loaded():
             self.unload(model['name'])
         config = json.loads(source_config.read_text(encoding='utf-8'))
@@ -325,9 +336,9 @@ class App:
 
     def update_context(self):
         entry = ENTRIES[self.combo.current()]
-        values = tuple(str(n) for n in entry.get('contexts', [262144]))
+        values = tuple(context_label(n) for n in entry.get('contexts', [262144]))
         self.context_combo.configure(values=values, state='readonly' if len(values)>1 else 'disabled')
-        self.context.set(str(entry.get('default_context', int(values[0]))))
+        self.context.set(context_label(entry.get('default_context', entry.get('contexts', [262144])[0])))
 
     def changed(self, _=None):
         self.update_context()
@@ -348,7 +359,7 @@ class App:
         self.busy = True
         self.error = False
         index = self.combo.current()
-        self.backend.context = int(self.context.get())
+        self.backend.context = CONTEXT_VALUES[self.context.get()]
         self.status.set('Loading… Strata can take several minutes.' if action == 'start' else 'Unloading…')
         for widget in (self.combo, self.context_combo, self.start_button, self.stop_button):
             widget.configure(state='disabled')
