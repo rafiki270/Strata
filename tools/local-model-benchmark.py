@@ -9,7 +9,7 @@ from pathlib import Path
 import requests
 
 
-def build_messages(seed, length):
+def build_messages(seed, length, retrieval=False):
     rng = random.Random(seed)
     words = ['archive', 'invoice', 'release', 'review', 'project', 'filter', 'sample',
              'workshop', 'inventory', 'delivery', 'meeting', 'inspection']
@@ -18,9 +18,21 @@ def build_messages(seed, length):
         lines.append(f'Record {i:06d}: {rng.choice(words)} {rng.randrange(100000,999999)}; '
                      f'The team checked the {rng.choice(words)} and recorded the result for review.\n')
     text = ''.join(lines)[:length]
+    if retrieval:
+        codes = audit_codes(seed)
+        middle = len(text)//2
+        text = ('BEGINNING AUDIT CODE: '+codes[0]+'\n'+text[:middle]+
+                '\nMIDDLE AUDIT CODE: '+codes[1]+'\n'+text[middle:]+
+                '\nEND AUDIT CODE: '+codes[2]+'\n')
+        text += 'First repeat all three audit codes in order (beginning, middle, end). Then follow the checklist instruction.\n'
     return [{'role': 'user', 'content': text + '\nWrite a detailed numbered checklist of 100 practical '
              'steps for maintaining a software release archive. Give a full explanatory sentence for '
              'each step. Continue until all 100 steps are complete.'}]
+
+
+def audit_codes(seed):
+    return [hashlib.sha256((seed+position).encode()).hexdigest()[:12].upper()
+            for position in ['beginning','middle','end']]
 
 
 def run(args):
@@ -46,11 +58,11 @@ def run(args):
         lo, hi = 0, args.prompt*10
         while lo+1 < hi:
             mid = (lo+hi)//2
-            if count(build_messages(seed,mid)) <= args.prompt:
+            if count(build_messages(seed,mid,args.retrieval)) <= args.prompt:
                 lo = mid
             else:
                 hi = mid
-        messages = build_messages(seed,lo)
+        messages = build_messages(seed,lo,args.retrieval)
         token_count = count(messages)
         digest = hashlib.sha256(messages[0]['content'].encode()).hexdigest()
         body = {'model':'strata', 'messages':messages, 'max_tokens':args.output,
@@ -92,6 +104,9 @@ def run(args):
             result['wall_seconds'] = time.perf_counter()-started
             result['time_to_first_token_seconds'] = first
             result['answer'] = ''.join(chunks)
+            if args.retrieval:
+                result['expected_codes'] = audit_codes(seed)
+                result['retrieval_pass'] = all(code in result['answer'] for code in result['expected_codes'])
             if not result.get('timings'):
                 status = session.get(args.url+'/v1/status',timeout=10).json()
                 result['timings'] = status.get('last_timings')
@@ -118,6 +133,7 @@ if __name__ == '__main__':
     parser.add_argument('--kind',choices=['strata','avalon'],default='strata')
     parser.add_argument('--prompt',type=int,default=32768)
     parser.add_argument('--output',type=int,default=512)
+    parser.add_argument('--retrieval',action='store_true')
     parser.add_argument('--runs',type=int,default=3)
     parser.add_argument('--timeout',type=int,default=3600)
     parser.add_argument('--out',default=str(Path(__file__).parent/'results'))
