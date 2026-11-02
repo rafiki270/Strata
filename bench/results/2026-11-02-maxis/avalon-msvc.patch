@@ -164,3 +164,15 @@
  #if defined(__AVX2__)
      const block_q2_0 * GGML_RESTRICT x = vx;
      const int nb = n / QK2_0;
+@@ -4716,7 +4722,11 @@
+ // Each column count in a function of its own: the dispatcher is then a jump. With the cases inlined in it, every call
+ // (one row of weights) ran the prologue of the largest (stack realigned to 32 bytes, a frame of 0x1c0 - 0x480 bytes,
+ // six registers saved), +4 % on an IQ3_XXS expert's gate / up rows.
++#ifdef _MSC_VER
++#define GGML_MULTI_CASE_ATTR __declspec(noinline)
++#else
+ #define GGML_MULTI_CASE_ATTR __attribute__((noinline))
++#endif
+ #define GGML_MULTI_CASES(kern)                                                                                             \
+ static GGML_MULTI_CASE_ATTR void kern##_c2(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy) { kern(n, s, vx, vy, 2); } \
+ static GGML_MULTI_CASE_ATTR void kern##_c3(int n, float * GGML_RESTRICT s, const void * GGML_RESTRICT vx, const void * const * vy) { kern(n, s, vx, vy, 3); } \
