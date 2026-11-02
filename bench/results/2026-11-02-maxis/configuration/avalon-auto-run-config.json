@@ -1,0 +1,33 @@
+{
+  "patch_sha256": "BF2F75B5C89482B32D7BFB959C50D438135450038EC9861C36903688CE6FD649",
+  "args": [
+    "-m",
+    "<existing-strata>\\local-data\\models\\iq3_s\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf",
+    "-c",
+    "262144",
+    "-b",
+    "8192",
+    "-ub",
+    "8192",
+    "-fa",
+    "on",
+    "-ctk",
+    "q8_0",
+    "-ctv",
+    "q8_0",
+    "--jinja",
+    "--parallel",
+    "1",
+    "--moe-cache",
+    "auto",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "8087",
+    "--spec-type",
+    "none"
+  ],
+  "exe": "<run-root>\\build-local\\avalon-build\\bin\\llama-server.exe",
+  "revision": "a91372eb6442da68dabb6495b8440ed96ab5910c",
+  "preload": "<existing-strata>\\data\\expert-profile.bin"
+}

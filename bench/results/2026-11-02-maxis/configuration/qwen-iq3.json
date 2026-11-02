@@ -1,0 +1,62 @@
+{
+  "exe": "<existing-strata>\\engine\\strata.exe",
+  "args": [
+    "--pack",
+    "<existing-strata>\\local-data\\packs\\iq3_s",
+    "--native",
+    "<existing-strata>\\local-data\\models\\iq3_s\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf",
+    "--expert-profile",
+    "<existing-strata>\\data\\expert-profile.bin",
+    "--expert-cache",
+    "auto",
+    "--prefill",
+    "auto",
+    "--spec",
+    "4",
+    "--max-context",
+    "262144",
+    "--kv",
+    "int8",
+    "--vram-reserve-mib",
+    "4096",
+    "--pool-workers",
+    "7",
+    "--kv-resident",
+    "32768",
+    "--spec-min-p",
+    "0.5",
+    "--mtp",
+    "<existing-strata>\\local-data\\mtp\\rt",
+    "--mtp-q4",
+    "all",
+    "--ple-gguf",
+    "<existing-strata>\\local-data\\models\\iq3_s\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf",
+    "--conversation-cache-mib",
+    "12288",
+    "--conversation-cache-slots",
+    "16"
+  ],
+  "cwd": "<existing-strata>",
+  "tokenizer": "<existing-strata>\\local-data\\packs\\iq3_s\\tokenizer",
+  "model_name": "qwen3.8-flash-next-gsq-rco-iq3_s",
+  "log": "<run-root>\\build-local\\qwen-iq3-engine.log",
+  "host": "127.0.0.1",
+  "port": 8085,
+  "gpu": 0,
+  "parallel": 2,
+  "open_browser": false,
+  "lib_dirs": [
+    "<existing-strata>\\.venv\\Lib\\site-packages\\nvidia\\cu13\\bin\\x86_64"
+  ],
+  "env": {
+    "STRATA_STAGER_SLEEP": "1",
+    "STRATA_STAGER_THREADS": "8",
+    "STRATA_RESIDENT_PIN": "0"
+  },
+  "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20
+  },
+  "effort_position": "start"
+}

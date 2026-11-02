@@ -1,0 +1,35 @@
+{
+  "label": "qwen-iq3-installed",
+  "trial": 3,
+  "input_tokens_counted": 32768,
+  "requested_output_tokens": 512,
+  "prompt_sha256": "585c1f906b01bb92a35562458eb7093d3838f2d805e72c9664b2702e4b442b49",
+  "url": "http://127.0.0.1:8085",
+  "kind": "strata",
+  "utc": "2026-11-02T04:47:53Z",
+  "usage": {
+    "prompt_tokens": 32728,
+    "completion_tokens": 512,
+    "total_tokens": 33240,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 32728,
+    "prompt_ms": 12404.6,
+    "prompt_per_token_ms": 0.379,
+    "prompt_per_second": 2638.4,
+    "predicted_n": 512,
+    "predicted_ms": 6066.2,
+    "predicted_per_token_ms": 11.848,
+    "predicted_per_second": 84.4,
+    "draft_n": 443,
+    "draft_n_accepted": 277
+  },
+  "finish_reason": "length",
+  "wall_seconds": 19.13057919999119,
+  "time_to_first_token_seconds": 17.933847400010563,
+  "answer": "Here is a detailed, numbered checklist of 100 practical steps for maintaining a software release archive, designed to ensure integrity, accessibility, and compliance.\n\n1. Define a clear retention policy that specifies how long different types of software releases must be archived based on legal, regulatory, and business requirements.\n2. Establish a standardized naming convention for all archived files to ensure consistency and easy identification across different versions and projects.\n3. Create a dedicated, secure storage location for the archive that is separate from active development environments to prevent accidental modification.\n4. Implement strict access controls and role-based permissions to ensure only authorized personnel can view or retrieve archived software releases.\n5. Generate cryptographic checksums (such as SHA-256) for every binary and source code file at the time of archiving to verify data integrity later.\n6. Maintain a comprehensive metadata index that records the version number, release date, author, and purpose of each archived item.\n7. Archive the complete source code associated with each release, including all dependencies and libraries, to ensure reproducibility.\n8. Store all build scripts, configuration files, and environment variables required to rebuild the software from the archived source code.\n9. Include detailed release notes and changelogs in the archive to provide context on features, bug fixes, and known issues for each version.\n10. Archive all associated documentation, such as user manuals, API references, and installation guides, alongside the software binaries.\n11. Implement an automated backup schedule that regularly copies the archive to a secondary, geographically distinct location to prevent data loss.\n12. Use write-once-read-many (WORM) storage media or immutable storage buckets to prevent unauthorized alteration or deletion of archived records.\n13. Conduct periodic integrity checks by comparing current file checksums against the original checksums recorded during archiving.\n14. Maintain a log of all access attempts and retrieval actions to create an audit trail for security and compliance purposes.\n15. Standardize the file formats used in the archive to ensure long-term readability and compatibility with future systems.\n16. Archive all third-party libraries and open-source components with their specific version numbers and license agreements to ensure legal compliance.\n17. Create a disaster recovery plan that specifically addresses the restoration of software releases from the archive in case of catastrophic failure.\n18. Implement version control integration so that the archive is automatically triggered by specific tags or commits in the source repository.\n19. Store"
+}

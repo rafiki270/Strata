@@ -1,0 +1,35 @@
+{
+  "label": "qwen-iq3-installed",
+  "trial": 1,
+  "input_tokens_counted": 32768,
+  "requested_output_tokens": 512,
+  "prompt_sha256": "79c681b629fb6222ed5bd91b79dbce42aefe98c546db5c0a8c4a9b92fbb4f198",
+  "url": "http://127.0.0.1:8085",
+  "kind": "strata",
+  "utc": "2026-11-02T04:46:59Z",
+  "usage": {
+    "prompt_tokens": 32728,
+    "completion_tokens": 512,
+    "total_tokens": 33240,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 32728,
+    "prompt_ms": 12304.6,
+    "prompt_per_token_ms": 0.376,
+    "prompt_per_second": 2659.8,
+    "predicted_n": 512,
+    "predicted_ms": 6720.3,
+    "predicted_per_token_ms": 13.126,
+    "predicted_per_second": 76.2,
+    "draft_n": 445,
+    "draft_n_accepted": 283
+  },
+  "finish_reason": "length",
+  "wall_seconds": 20.873263599991333,
+  "time_to_first_token_seconds": 15.562508400005754,
+  "answer": "Based on the data provided in the benchmark archive, here is a detailed numbered checklist of 100 practical steps for maintaining a software release archive. Each step includes a full explanatory sentence to ensure clarity and completeness.\n\n1.  **Define Archive Scope**: Clearly define which software versions, artifacts, and documentation are included in the archive to ensure comprehensive coverage.\n2.  **Establish Naming Conventions**: Implement a consistent naming convention for all archive files to facilitate easy identification and retrieval.\n3.  **Assign Unique Identifiers**: Assign a unique identifier or version number to each release to prevent confusion between similar builds.\n4.  **Verify Build Integrity**: Ensure that the software build being archived is complete and has passed all necessary quality assurance tests.\n5.  **Generate Checksums**: Create cryptographic checksums (such as SHA-256) for all archived files to verify data integrity over time.\n6.  **Document Release Notes**: Include detailed release notes that describe new features, bug fixes, and known issues for each archived version.\n7.  **Record Build Metadata**: Capture metadata such as build date, build environment, and compiler versions to aid in future debugging.\n8.  **Include Dependency Lists**: Archive a complete list of third-party libraries and dependencies required to run the software.\n9.  **Store Configuration Files**: Save all configuration files and environment variables used during the build process for reproducibility.\n10. **Archive Source Code**: Include the exact source code snapshot corresponding to the release to allow for future modifications or audits.\n11. **Include Test Results**: Archive the results of unit, integration, and system tests to provide evidence of the software\u2019s quality at release.\n12. **Secure Access Controls**: Implement strict access controls to ensure that only authorized personnel can modify or delete archive contents.\n13. **Choose Storage Medium**: Select a reliable storage medium, such as cloud storage or physical servers, that meets retention requirements.\n14. **Implement Redundancy**: Store multiple copies of the archive in geographically separate locations to protect against data loss.\n15. **Encrypt Sensitive Data**: Encrypt any sensitive data within the archive to comply with security and privacy regulations.\n16. **Set Retention Policies**: Define clear retention policies that specify how long each version of the software must be kept.\n17. **Automate Archiving Process**: Use automated scripts or tools to handle the archiving process to reduce human error and increase"
+}

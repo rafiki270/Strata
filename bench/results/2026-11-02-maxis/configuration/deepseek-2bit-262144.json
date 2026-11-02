@@ -1,0 +1,45 @@
+{
+  "exe": "<run-root>\\engine-dsv41\\0.1.55-windows-x86_64-cuda-cuda13\\strata-dsv41.exe",
+  "args": [
+    "--pack",
+    "<run-root>\\build-local\\data\\packs\\deepseek-v4.1-flash-ist-das-2.00bpw",
+    "--max-context",
+    "262144",
+    "--eos",
+    "1",
+    "--vision",
+    "off",
+    "--dspark",
+    "auto",
+    "--dspark-conf",
+    "0.65"
+  ],
+  "cwd": "<run-root>",
+  "tokenizer": "<run-root>\\build-local\\data\\packs\\deepseek-v4.1-flash-ist-das-2.00bpw\\tokenizer",
+  "model_name": "deepseek-v4.1-flash",
+  "arch": "deepseek41",
+  "log": "<run-root>\\build-local\\deepseek-2bit-262144-engine.log",
+  "lib_dirs": [
+    "<run-root>\\engine-dsv41\\0.1.55-windows-x86_64-cuda-cuda13"
+  ],
+  "port": 8086,
+  "engine_ready_s": 3600,
+  "gpu": 0,
+  "gpus_asked": true,
+  "host": "127.0.0.1",
+  "open_browser": false,
+  "args_written": [
+    "--pack",
+    "<run-root>\\build-local\\data\\packs\\deepseek-v4.1-flash-ist-das-2.00bpw",
+    "--max-context",
+    "32768",
+    "--eos",
+    "1",
+    "--vision",
+    "off",
+    "--dspark",
+    "auto",
+    "--dspark-conf",
+    "0.65"
+  ]
+}

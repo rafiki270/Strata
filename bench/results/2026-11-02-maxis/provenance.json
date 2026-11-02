@@ -1,0 +1,79 @@
+{
+  "deepseek_repository": "ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
+  "deepseek_revision": "cb02422c900df489cea5833e8a92171224059b3c",
+  "auxiliary_repository": "unsloth/DeepSeek-V4.1-Flash-1017-GGUF",
+  "auxiliary_revision": "f924b94f19c1fea02c06a65c8475b0a45e2b88b1",
+  "deepseek_files": [
+    {
+      "name": "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XXS-00001-of-00004.gguf",
+      "bytes": 39075714624,
+      "setup_verified_sha256": "d46efb67ccffd8fb5d7f18b423896381b9e06d8491e161c370ddf3b05b07e050"
+    },
+    {
+      "name": "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XXS-00002-of-00004.gguf",
+      "bytes": 39388449504,
+      "setup_verified_sha256": "cec1b2c3da429dc768b8bb9bc4dc4403d81f74d34db660a6a34ee3e555bf2c70"
+    },
+    {
+      "name": "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XXS-00003-of-00004.gguf",
+      "bytes": 39246891616,
+      "setup_verified_sha256": "9d9c2140fcb134a0b9a74dedd0e5167e68077af6d08ce7f856bce112f0a35dd3"
+    },
+    {
+      "name": "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XXS-00004-of-00004.gguf",
+      "bytes": 20527837312,
+      "setup_verified_sha256": "9b790a2297ed3cdede379fc984f4a52bb95f3b23724c797af11d1fa6a69db059"
+    },
+    {
+      "name": "DeepSeek-V4.1-Flash-1017-UD-Q8_K_XL-00001-of-00009.gguf",
+      "bytes": 5780589,
+      "setup_verified_sha256": "cc15d470afcb030558bbc4d8e2ccd840182e2e95de1a95198138efe63a5fd99f"
+    },
+    {
+      "name": "DeepSeek-V4.1-Flash-Engram-IQ4_NL.gguf",
+      "bytes": 110595290816,
+      "setup_verified_sha256": "eb19f30d368d393784e1fc54fdfaffc427ebb2110bf3762fdf5a8fbb9a2d740a"
+    },
+    {
+      "name": "dspark-DeepSeek-V4.1-Flash-1017-Q8_0.gguf",
+      "bytes": 7976914240,
+      "setup_verified_sha256": "6ba6ac1b331c540691a209e7fc97dec2a24e295acb1e755c84c7d24a4373927a"
+    }
+  ],
+  "qwen_engine_build": {
+    "version": "0.1.40.3",
+    "source": "release",
+    "archs": [
+      75,
+      86,
+      89,
+      120
+    ],
+    "ptx": true,
+    "cuda": "13.0",
+    "vision": "gpu",
+    "portable": true
+  },
+  "deepseek_engine_build": {
+    "version": "0.1.55",
+    "source": "f-029-rel 99866a47a",
+    "commit": "99866a47a2b8",
+    "archs": [
+      86,
+      89,
+      120
+    ],
+    "ptx": true,
+    "cuda": "13.0",
+    "portable": true,
+    "dsv41": true
+  },
+  "installed_launcher_source_sha256": "a07052d2b7db2c0f9c9adbc36b227e2acd1e8e41c735f59391aa6501786f5ad6",
+  "avalon_revision": "a91372eb6442da68dabb6495b8440ed96ab5910c",
+  "measured_executable_sha256": {
+    "qwen-strata.exe": "34cde150b21148e6cf192dbf2242e5544d3456c09ab0010837aaacfda11eca5b",
+    "deepseek-strata-dsv41.exe": "60fb10d2b074bcb80313b5d9c2f5cf7cee24ed118018346a035700f85f50cbf9",
+    "avalon-llama-server.exe": "008cf6957d4ca41adeb1b757d026d80e2241e9d14c19080555c9021e982c38cb"
+  },
+  "note": "DeepSeek hashes were verified by setup during download. They were not rehashed during inference."
+}

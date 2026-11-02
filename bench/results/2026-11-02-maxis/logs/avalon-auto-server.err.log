@@ -1,0 +1,9 @@
+0.00.002.726 I srv  llama_server: initializing ...
+0.00.036.324 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.036.649 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)
+0.00.047.306 I srv    load_model: loading model '<existing-strata>\local-data\models\iq3_s\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf'
+0.01.005.115 I common_params_fit_impl: MoE expert cache: all 49 layers on the devices, the experts in system memory
+0.01.302.175 W llama_model_loader: tensor overrides to CPU are used with mmap enabled - consider using --load-mode none for better performance
+0.06.174.437 I common_init_result: backend sampling enabled (NVIDIA GPU; -no-bs to disable)
+0.14.135.519 I cmn          init: llama threadpool init, n_threads = 16
+<run-root>\build-local\Avalon\ggml\src\ggml-cuda\ggml-cuda.cu:6584: ggml_cuda_graph_evaluate_and_capture: MUL_MAT_ID with host weights outside a hosted MoE block (ffn_moe_gate-1)

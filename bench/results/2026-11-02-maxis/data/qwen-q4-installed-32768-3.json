@@ -1,0 +1,35 @@
+{
+  "label": "qwen-q4-installed",
+  "trial": 3,
+  "input_tokens_counted": 32768,
+  "requested_output_tokens": 512,
+  "prompt_sha256": "8b833bf343abfefe1cb5fd09df8076bfccdeb103f149dc2741fdde4f6b40d449",
+  "url": "http://127.0.0.1:8085",
+  "kind": "strata",
+  "utc": "2026-11-02T04:42:41Z",
+  "usage": {
+    "prompt_tokens": 32728,
+    "completion_tokens": 512,
+    "total_tokens": 33240,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 32728,
+    "prompt_ms": 22975.6,
+    "prompt_per_token_ms": 0.702,
+    "prompt_per_second": 1424.5,
+    "predicted_n": 512,
+    "predicted_ms": 10668.7,
+    "predicted_per_token_ms": 20.837,
+    "predicted_per_second": 48.0,
+    "draft_n": 449,
+    "draft_n_accepted": 273
+  },
+  "finish_reason": "length",
+  "wall_seconds": 33.95546409999952,
+  "time_to_first_token_seconds": 23.266006499994546,
+  "answer": "Here is a detailed numbered checklist of 100 practical steps for maintaining a software release archive, based on industry best practices for software configuration management and data retention.\n\n1. Define a clear retention policy that specifies how long different types of software releases must be kept based on legal, regulatory, and business requirements.\n2. Establish a standardized naming convention for all release artifacts to ensure consistency and ease of identification across the archive.\n3. Create a dedicated, secure storage repository specifically for archived software releases to prevent accidental deletion or modification.\n4. Implement strict access control lists (ACLs) to restrict who can view, download, or modify archived release files.\n5. Assign a dedicated archive administrator or team responsible for the integrity and availability of the release archive.\n6. Document the metadata associated with each release, including version numbers, release dates, and responsible developers.\n7. Ensure that every archived release includes the complete source code snapshot corresponding to that specific version.\n8. Archive all build scripts, configuration files, and dependency manifests required to rebuild the release from scratch.\n9. Store compiled binaries and executable files in their original, unmodified state within the archive.\n10. Include all third-party libraries and dependencies used in the release to ensure future reproducibility.\n11. Archive all test suites and test results associated with the release to provide evidence of quality assurance.\n12. Store release notes and change logs alongside the software artifacts for historical context.\n13. Include user documentation, installation guides, and API references in the archive package.\n14. Archive any database schema changes or migration scripts associated with the release.\n15. Ensure that all archived files are stored in open, non-proprietary formats where possible to avoid vendor lock-in.\n16. Implement checksums (such as SHA-256) for every file in the archive to verify data integrity over time.\n17. Automate the archiving process to trigger immediately after a successful production deployment.\n18. Verify that the automated archiving process captures all necessary artifacts without manual intervention.\n19. Maintain a central index or database that maps release versions to their physical or logical storage locations.\n20. Regularly audit the archive index to ensure that all listed releases are actually present in storage.\n21. Implement version control for the archive index itself to track changes to the catalog.\n22. Encrypt archived data at rest to protect sensitive intellectual property and customer data.\n"
+}

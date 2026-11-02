@@ -1,0 +1,36 @@
+{
+  "label": "deepseek-2bit-262144",
+  "trial": 3,
+  "input_tokens_counted": 32768,
+  "requested_output_tokens": 512,
+  "prompt_sha256": "37292d098a70aea29d0ea9b2ef11302b60613dd4e726e5b481260b61df4fa5df",
+  "prompt_seed": "maxis-20261102-32768-2",
+  "url": "http://127.0.0.1:8086",
+  "kind": "strata",
+  "utc": "2026-11-02T06:07:31Z",
+  "usage": {
+    "prompt_tokens": 32742,
+    "completion_tokens": 512,
+    "total_tokens": 33254,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 32742,
+    "prompt_ms": 46617.7,
+    "prompt_per_token_ms": 1.424,
+    "prompt_per_second": 702.4,
+    "predicted_n": 512,
+    "predicted_ms": 50289.2,
+    "predicted_per_token_ms": 98.221,
+    "predicted_per_second": 10.2,
+    "draft_n": 0,
+    "draft_n_accepted": 0
+  },
+  "finish_reason": "length",
+  "wall_seconds": 96.98526099999435,
+  "time_to_first_token_seconds": 46.69391929998528,
+  "answer": "Here is a detailed numbered checklist of 100 practical steps for maintaining a software release archive, with a full explanatory sentence for each step.\n\n1. Define the archive\u2019s purpose and scope, because a clear statement of what the archive is meant to preserve helps prevent inconsistent retention decisions and ensures that all stakeholders understand why releases are stored.\n2. Establish a formal retention policy, because specifying how long each release type must be kept protects the organization from accidental deletion and supports legal, audit, and operational requirements.\n3. Identify all release artifact types to be archived, because releases may include binaries, source packages, documentation, checksums, configuration files, and metadata that must all be captured for a complete record.\n4. Create a canonical naming convention for archived releases, because consistent names make retrieval, comparison, and automation far easier and reduce ambiguity between similar versions.\n5. Define a versioning scheme and record it in the archive metadata, because version identifiers must be unambiguous and traceable across builds, patches, and hotfixes.\n6. Record the exact release date and time for every artifact, because temporal metadata is essential for reconstructing release history and correlating incidents with specific versions.\n7. Capture the build environment details for each release, because compiler versions, operating system, dependency versions, and toolchain settings affect reproducibility and debugging.\n8. Store source code or source snapshots alongside binaries where policy permits, because source preservation enables future rebuilds, security review, and forensic analysis.\n9. Archive dependency manifests and lock files, because dependency drift can change behavior and the archive must show exactly which third-party components were used.\n10. Include checksums or cryptographic hashes for every artifact, because integrity verification allows the team to detect corruption, tampering, or incomplete transfers.\n11. Digitally sign release artifacts where appropriate, because signatures provide provenance and help verify that archived files are authentic and unmodified.\n12. Record the identity of the release approver or signing authority, because accountability for a release is important when auditing who authorized distribution.\n13. Capture release notes and changelogs in the archive, because they document what changed, why it changed, and what users or operators need to know.\n14. Store installation and upgrade instructions with each release, because operational guidance is part of the release record and helps future maintainers reproduce deployment steps.\n15. Archive configuration templates and default settings, because configuration differences can cause release behavior to vary and must be recoverable.\n16. Preserve test results and quality reports associated with the release, because evidence of validation is necessary to"
+}
