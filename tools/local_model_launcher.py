@@ -28,6 +28,7 @@ ENTRIES = REGISTRY['models']
 MODELS = tuple(entry['label'] for entry in ENTRIES)
 URLS = tuple(entry.get('url', 'http://127.0.0.1:8080/v1') for entry in ENTRIES)
 FLAGS = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+DEFAULT_BASE = 'http://127.0.0.1:8080'
 
 
 def context_label(tokens):
@@ -37,7 +38,23 @@ def context_label(tokens):
 CONTEXT_VALUES = {context_label(n): n for entry in ENTRIES for n in entry.get('contexts', [262144])}
 
 
+def served_model(base):
+    """Return the model id a Strata API reports, or None when nothing answers."""
+    try:
+        response = requests.get(base+'/health', timeout=3)
+        response.raise_for_status()
+        return response.json().get('model')
+    except (requests.RequestException, ValueError, AttributeError):
+        return None
+
+
 def initial_selection():
+    # Select the model that is actually being served, even when a supervisor started it.
+    for base in dict.fromkeys(entry.get('base', DEFAULT_BASE) for entry in ENTRIES if entry['kind'] == 'strata'):
+        model = served_model(base)
+        for index, entry in enumerate(ENTRIES):
+            if entry['kind'] == 'strata' and entry.get('base', DEFAULT_BASE) == base and entry['model_id'] == model:
+                return index
     try:
         key = json.loads(STATE.read_text())['key']
         return next(i for i, entry in enumerate(ENTRIES) if entry['key'] == key)
@@ -94,6 +111,24 @@ class Backend:
             except psutil.NoSuchProcess:
                 pass
         STATE.unlink(missing_ok=True)
+
+    def release_supervisor(self, entry):
+        """Stop a model that a declared persistent supervisor serves, and keep it stopped."""
+        command = entry.get('supervisor_stop')
+        base = entry.get('base', DEFAULT_BASE)
+        if not command or served_model(base) != entry['model_id']:
+            return
+        result = subprocess.run(command, cwd=entry.get('source_root'), stdin=subprocess.DEVNULL,
+                                capture_output=True, text=True, creationflags=FLAGS, timeout=120)
+        if result.returncode:
+            raise RuntimeError('The supervisor stop command failed: '
+                               + (result.stderr or result.stdout).strip()[-500:])
+        # The supervisor may apply the request on its next check rather than immediately.
+        deadline = time.monotonic() + entry.get('stop_timeout', 90)
+        while served_model(base) == entry['model_id']:
+            if time.monotonic() >= deadline:
+                raise RuntimeError('Stop was requested, but the model is still running. Check the supervisor log.')
+            time.sleep(2)
 
     def ensure_ollama(self, entry):
         try:
@@ -225,6 +260,7 @@ class Backend:
                     self.unload(model['name'])
         else:
             self.stop_server()
+            self.release_supervisor(ENTRIES[index])
         return self.status(index)
 
 
@@ -410,6 +446,9 @@ if __name__ == '__main__':
         print(backend.start(index),flush=True)
     elif args.stop:
         backend.stop_server()
+        for entry in ENTRIES:
+            if entry['kind'] == 'strata':
+                backend.release_supervisor(entry)
     else:
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('Maxis.LocalModels')
         kernel=ctypes.windll.kernel32
