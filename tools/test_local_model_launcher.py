@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 
-class LifecycleGuards(unittest.TestCase):
+class LauncherCase(unittest.TestCase):
     def setUp(self):
         self.scratch = tempfile.TemporaryDirectory()
         self.root = Path(self.scratch.name)
@@ -30,6 +30,8 @@ class LifecycleGuards(unittest.TestCase):
         self.env.stop()
         self.scratch.cleanup()
 
+
+class LifecycleGuards(LauncherCase):
     def test_recycled_pid_is_preserved(self):
         process = Mock()
         process.create_time.return_value = 20
@@ -66,6 +68,73 @@ class LifecycleGuards(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.backend.start(0)
         stop.assert_not_called()
+
+
+class SupervisedStop(LauncherCase):
+    """Stop must also unload a model that a persistent supervisor serves."""
+    command = ['python','control.py','stop','--profile','deepseek']
+
+    def setUp(self):
+        super().setUp()
+        self.serving = 'deepseek'
+        self.module.ENTRIES[0].update(supervisor_stop=self.command, source_root=str(self.root))
+
+    def health(self, url, timeout):
+        if self.serving is None:
+            raise self.module.requests.ConnectionError()
+        return Mock(json=Mock(return_value={'model':self.serving,'loaded':True,'max_context':32768}))
+
+    def stop(self, returncode=0, unloads=True):
+        def run(command, **_):
+            if unloads:
+                self.serving = None
+            return Mock(returncode=returncode, stdout='', stderr='profile missing')
+        with patch.object(self.module.requests,'get',side_effect=self.health), \
+             patch.object(self.module.subprocess,'run',side_effect=run) as run_command, \
+             patch.object(self.backend,'stop_server') as stop_owned, \
+             patch.object(self.backend,'owned_process',return_value=None), \
+             patch.object(self.module.time,'sleep'):
+            try:
+                return self.backend.stop(0), run_command
+            finally:
+                stop_owned.assert_called_once()
+
+    def test_supervised_model_is_stopped_and_unloaded(self):
+        status, run_command = self.stop()
+        self.assertEqual(run_command.call_args.args[0], self.command)
+        self.assertEqual(run_command.call_args.kwargs['cwd'], str(self.root))
+        self.assertEqual(status, 'Offline')
+
+    def test_other_served_model_is_preserved(self):
+        self.serving = 'another-model'
+        status, run_command = self.stop()
+        run_command.assert_not_called()
+        self.assertTrue(status.startswith('Unloaded'))
+
+    def test_undeclared_supervisor_is_not_contacted(self):
+        del self.module.ENTRIES[0]['supervisor_stop']
+        status, run_command = self.stop()
+        run_command.assert_not_called()
+        self.assertTrue(status.startswith('Ready'))
+
+    def test_failed_stop_command_is_reported(self):
+        with self.assertRaisesRegex(RuntimeError,'profile missing'):
+            self.stop(returncode=1, unloads=False)
+
+    def test_model_still_running_is_reported(self):
+        self.module.ENTRIES[0]['stop_timeout'] = 0
+        with self.assertRaisesRegex(RuntimeError,'still running'):
+            self.stop(unloads=False)
+
+    def test_window_selects_the_served_model(self):
+        self.module.ENTRIES.append({'label':'Qwen','key':'qwen','kind':'strata','model_id':'qwen',
+                                    'config':self.module.ENTRIES[0]['config'],'contexts':[32768]})
+        self.serving = 'qwen'
+        with patch.object(self.module.requests,'get',side_effect=self.health):
+            self.assertEqual(self.module.initial_selection(), 1)
+        self.serving = None
+        with patch.object(self.module.requests,'get',side_effect=self.health):
+            self.assertEqual(self.module.initial_selection(), 0)
 
 
 if __name__ == '__main__':
