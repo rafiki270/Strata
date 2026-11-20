@@ -1,6 +1,6 @@
 # Local Models launcher and benchmark
 
-`local_model_launcher.py` is an optional Windows launcher for existing Strata configurations, installed Ollama models and Haru voice chat. Opening the window loads no model and selects the Strata model the API is serving, if it is in the registry. Starting a model unloads Ollama models and can stop the server recorded by this launcher after checking its creation time and command. An occupied API port is preserved.
+`local_model_launcher.py` is an optional Windows launcher for existing Strata configurations, installed Ollama models and voice chat. Opening the window loads no model and selects the Strata model the API is serving, if it is in the registry. Starting a model unloads Ollama models and can stop the server recorded by this launcher after checking its creation time and command. An occupied API port is preserved.
 
 A Strata model kept online by a persistent supervisor is not recorded by this launcher. Give its entry a `supervisor_stop` argument list: the supervisor's own stop command, which must also pause its recovery. It runs from `source_root`. Stop runs it only while the API reports that entry's `model_id`, then waits up to `stop_timeout` seconds (default 90) for the model to unload, and reports an error if it is still running. Entries without `supervisor_stop` keep the earlier behaviour: Stop affects only the launcher's own server.
 
@@ -23,6 +23,14 @@ $haruPython = Resolve-Path .venv-haru\Scripts\python.exe
 Add a `haru` entry to the registry with `key`, `label`, `kind`, `python` (absolute path to the Haru environment's `python.exe`), and `checkpoint` (absolute path to the downloaded directory). The optional `port` defaults to 8998. Haru listens on `127.0.0.1`. It never uses the launcher API proxy. Start switches away from any launcher-owned model. It also requests a supervised Strata model to stop when its registry entry declares `supervisor_stop`.
 
 Select **Haru-4B** and click **Start**. When Haru is ready, the launcher opens voice chat in the default browser. Choose a character and a reference clip, then click **Start conversation**. To provide a default English reference, place a clean speech clip you have permission to use at `Lib/site-packages/haru/assets/voices/en.flac` inside the Haru environment. The reference determines how Haru sounds. Install `ffmpeg` on `PATH` if you plan to record reference clips in the browser. **Open Voice Chat** reopens a running session's setup page. **Stop** ends chat and releases GPU memory.
+
+## PersonaPlex 7B voice chat
+
+Extract the Windows release of [moshi.cpp v0.8.0-beta](https://github.com/Codes4Fun/moshi.cpp/releases/tag/v0.8.0-beta). Use its `Codes4Fun_personaplex-7b-v1-q4_k-GGUF.txt` download manifest to obtain the Q4_K model, Mimi codec, tokenizer, and default voices. The manifest contains pinned model revisions and hashes. Run its download command from the intended checkpoint root, so `Codes4Fun/personaplex-7b-v1-q4_k-GGUF` and `Codes4Fun/moshi-common` are sibling folders below it.
+
+Add a `personaplex` registry entry with `key`, `label`, `kind`, `python` (a Windows Python environment with `aiohttp`), `executable` (the absolute path to `personaplex.exe`), and `checkpoint` (the absolute path to the checkpoint root). The port defaults to 8999. If you deploy `local_model_launcher.py` on its own, keep the `tools/personaplex` directory alongside it.
+
+Select **PersonaPlex 7B**, click **Start**, and then click **Start conversation** in the browser. The model loads when you start a conversation and releases GPU memory when you end it. The runtime uses CUDA, the NATF2 voice, and a short assistant prompt. For one additional LAN client, give the registry entry a `lan` object with `ip`, `client`, `certificate`, and `private_key`. Supply the server's IPv4 address, the allowed client's IPv4 address, and the two absolute PEM file paths. The client needs to trust the certificate for that IP address before it can use the microphone over HTTPS.
 
 Headless commands use the same lifecycle implementation:
 

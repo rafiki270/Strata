@@ -153,7 +153,7 @@ class HaruLifecycle(LauncherCase):
         stop.assert_not_called()
 
     def test_occupied_port_preserves_loaded_model(self):
-        with patch.object(self.backend, 'haru_installed', return_value=True), \
+        with patch.object(self.backend, 'voice_installed', return_value=True), \
              patch.object(self.module.socket, 'socket') as socket, patch.object(self.backend, 'stop_server') as stop:
             socket.return_value.__enter__.return_value.connect_ex.return_value = 0
             with self.assertRaisesRegex(RuntimeError, 'port 18998 is occupied'):
@@ -161,7 +161,7 @@ class HaruLifecycle(LauncherCase):
         stop.assert_not_called()
 
     def test_unowned_ready_endpoint_is_ignored(self):
-        with patch.object(self.backend, 'haru_installed', return_value=True), \
+        with patch.object(self.backend, 'voice_installed', return_value=True), \
              patch.object(self.module.requests, 'get') as get:
             self.assertEqual(self.backend.status(1), 'Offline')
         get.assert_not_called()
@@ -170,6 +170,17 @@ class HaruLifecycle(LauncherCase):
         with patch.object(self.module.psutil, 'Process') as process:
             self.backend.stop(1)
         process.assert_not_called()
+
+
+class PersonaPlexLifecycle(LauncherCase):
+    def test_personaplex_passes_checkpoint_identity_and_defaults_to_loopback(self):
+        entry = {'key': 'persona', 'kind': 'personaplex', 'python': 'python.exe',
+                 'executable': 'personaplex.exe', 'checkpoint': str(self.root)}
+        command, option = self.backend.voice_command(entry)
+        self.assertEqual(option, '--checkpoints')
+        self.assertEqual(command[command.index(option) + 1], str(self.root))
+        self.assertNotIn('--lan-ip', command)
+        self.assertEqual(self.module.model_url(entry), 'http://127.0.0.1:8999')
 
 
 if __name__ == '__main__':
