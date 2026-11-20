@@ -1,8 +1,9 @@
-"""Optional Windows launcher for existing Strata and Ollama model installations.
+"""Optional Windows launcher for existing Strata, Ollama and Haru installations.
 
 Set LOCAL_MODELS_REGISTRY to a JSON registry. No model is loaded by opening the window.
 """
 import argparse
+from contextlib import contextmanager
 import ctypes
 import json
 import os
@@ -14,6 +15,7 @@ import threading
 import time
 import tkinter as tk
 from tkinter import ttk
+import webbrowser
 
 import psutil
 import requests
@@ -26,9 +28,31 @@ STATE_DIR.mkdir(parents=True, exist_ok=True)
 STATE = STATE_DIR / 'server-state.json'
 ENTRIES = REGISTRY['models']
 MODELS = tuple(entry['label'] for entry in ENTRIES)
-URLS = tuple(entry.get('url', 'http://127.0.0.1:8080/v1') for entry in ENTRIES)
 FLAGS = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
 DEFAULT_BASE = 'http://127.0.0.1:8080'
+HARU_PORT = 8998
+
+
+def haru_url(entry):
+    return f"http://127.0.0.1:{int(entry.get('port', HARU_PORT))}"
+
+
+def model_url(entry):
+    return haru_url(entry) if entry['kind'] == 'haru' else entry.get('url', DEFAULT_BASE + '/v1')
+
+
+@contextmanager
+def model_change():
+    # The desktop and CLI can share one registry and ownership record.
+    import msvcrt
+
+    with (STATE_DIR / 'model-change.lock').open('a+b') as lock:
+        lock.seek(0)
+        try:
+            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError as exc:
+            raise RuntimeError('A model is already starting or stopping. Try again when it finishes.') from exc
+        yield
 
 
 def context_label(tokens):
@@ -77,20 +101,24 @@ class Backend:
             subprocess.Popen([proxy['python'], proxy['script']], cwd=proxy['source_root'],
                              stdin=subprocess.DEVNULL, stdout=log, stderr=log, creationflags=FLAGS)
 
-    def owned_process(self):
+    def owned_process(self, key=None):
         try:
             state = json.loads(STATE.read_text())
+            if key is not None and state['key'] != key:
+                return None
             process = psutil.Process(state['pid'])
             if abs(process.create_time() - state['created']) > 0.5:
                 return None
-            if state['config'].lower() not in ' '.join(process.cmdline()).lower():
+            args = process.cmdline()
+            option_index = args.index(state.get('option', '--config'))
+            if args[option_index + 1].casefold() != state['config'].casefold():
                 return None
             return process
-        except (OSError, ValueError, KeyError, psutil.NoSuchProcess, psutil.AccessDenied):
+        except (OSError, ValueError, IndexError, KeyError, psutil.NoSuchProcess, psutil.AccessDenied):
             return None
 
-    def stop_server(self):
-        process = self.owned_process()
+    def stop_server(self, key=None):
+        process = self.owned_process(key)
         if process is None:
             return
         children = process.children(recursive=True)
@@ -165,6 +193,19 @@ class Backend:
     def status(self, index):
         entry = ENTRIES[index]
         try:
+            if entry['kind'] == 'haru':
+                if not self.haru_installed(entry):
+                    return 'Not installed · Haru runtime or checkpoint missing'
+                if not self.owned_process(entry['key']):
+                    return 'Offline'
+                try:
+                    response = requests.get(haru_url(entry) + '/api/ready', timeout=3)
+                    response.raise_for_status()
+                except requests.ConnectionError:
+                    return 'Loading / not ready'
+                readiness = response.json()
+                return ('Ready · voice chat' if isinstance(readiness, dict) and readiness.get('ready') is True
+                        else 'Loading / not ready')
             if entry['kind'] == 'ollama':
                 model = next((m for m in self.loaded() if m['name']==entry['model_id']), None)
                 return f"Ready · {model.get('context_length', 0):,} context" if model else 'Unloaded'
@@ -190,9 +231,72 @@ class Backend:
             return
         raise RuntimeError('The API port is occupied by another service. It was preserved.')
 
-    def start(self, index):
-        self.ensure_proxy()
+    @staticmethod
+    def haru_installed(entry):
+        checkpoint = Path(entry['checkpoint'])
+        return Path(entry['python']).is_file() and all(
+            (checkpoint / name).is_file() for name in ('config.json', 'tokenizer.json', 'model.safetensors')
+        )
+
+    def start_haru(self, index):
         entry = ENTRIES[index]
+        if not self.haru_installed(entry):
+            raise RuntimeError('Haru needs its Python runtime and complete checkpoint. See tools/LOCAL_MODELS.md.')
+        log_path = STATE_DIR / f"{entry['key']}-server.log"
+        process = self.owned_process(entry['key'])
+        if process is None:
+            port = int(entry.get('port', HARU_PORT))
+            with socket.socket() as connection:
+                connection.settimeout(1)
+                if connection.connect_ex(('127.0.0.1', port)) == 0:
+                    raise RuntimeError(f'Haru port {port} is occupied by another service. It was preserved.')
+            self.stop_server()
+            strata = [model for model in ENTRIES if model['kind'] == 'strata']
+            for model in strata:
+                self.release_supervisor(model)
+            for base in {model.get('base', DEFAULT_BASE) for model in strata}:
+                self.require_api_free(base)
+            for model in self.loaded():
+                self.unload(model['name'])
+            command = [entry['python'], '-u', '-m', 'haru.server', '--model', entry['checkpoint'],
+                       '--device', 'cuda', '--host', '127.0.0.1', '--port', str(port),
+                       '--network-profile', 'local', '--webrtc', 'off']
+            process = self.spawn_server(entry, command, log_path, '--model', entry['checkpoint'])
+        return self.wait_for_model(index, process, log_path)
+
+    def spawn_server(self, entry, command, log_path, option, marker, context=None):
+        with log_path.open('ab') as log:
+            process = subprocess.Popen(command, cwd=entry.get('source_root'), stdin=subprocess.DEVNULL,
+                                       stdout=log, stderr=log, creationflags=FLAGS,
+                                       env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1', 'PYTHONUTF8': '1'})
+        try:
+            owned = psutil.Process(process.pid)
+            temporary = STATE.with_suffix('.new')
+            temporary.write_text(json.dumps({'pid': process.pid, 'created': owned.create_time(),
+                'key': entry['key'], 'config': str(marker), 'option': option, 'context': context}))
+            temporary.replace(STATE)
+        except (OSError, psutil.Error):
+            # The launcher cannot manage a process whose ownership it couldn't record.
+            process.terminate()
+            raise
+        return owned
+
+    def wait_for_model(self, index, process, log_path):
+        deadline = time.monotonic() + ENTRIES[index].get('ready_timeout', 600)
+        while time.monotonic() < deadline:
+            if not process.is_running():
+                raise RuntimeError(f'Model process exited. See {log_path}')
+            status = self.status(index)
+            if status.startswith('Ready'):
+                return status
+            time.sleep(2)
+        raise RuntimeError(f'Model is still loading. It was preserved; see {log_path}')
+
+    def start(self, index):
+        entry = ENTRIES[index]
+        if entry['kind'] == 'haru':
+            return self.start_haru(index)
+        self.ensure_proxy()
         if entry['kind'] == 'ollama':
             self.stop_server()
             for base in {e.get('base','http://127.0.0.1:8080') for e in ENTRIES if e['kind']=='strata'}:
@@ -233,34 +337,21 @@ class Backend:
         active_config = STATE_DIR/f"{entry['key']}-active.json"
         active_config.write_text(json.dumps(config,indent=2))
         log_path = STATE_DIR/f"{entry['key']}-server.log"
-        with log_path.open('ab') as log:
-            process = subprocess.Popen([entry['python'],'-u','-m','serve.server','--engine','strata',
-                '--config',str(active_config),'--host','127.0.0.1','--port',str(config['port'])],
-                cwd=entry['source_root'], stdin=subprocess.DEVNULL, stdout=log, stderr=log,
-                creationflags=FLAGS, env={**os.environ,'PYTHONDONTWRITEBYTECODE':'1','PYTHONUTF8':'1'})
-        owned = psutil.Process(process.pid)
-        temporary = STATE.with_suffix('.new')
-        temporary.write_text(json.dumps({'pid':process.pid,'created':owned.create_time(),
-            'key':entry['key'],'config':str(active_config),'context':self.context}))
-        temporary.replace(STATE)
-        deadline = time.monotonic()+entry.get('ready_timeout',600)
-        while time.monotonic()<deadline:
-            if process.poll() is not None:
-                raise RuntimeError(f'Model process exited ({process.returncode}). See {log_path}')
-            status = self.status(index)
-            if status.startswith('Ready'):
-                return status
-            time.sleep(2)
-        raise RuntimeError(f'Model is still loading. It was preserved; see {log_path}')
+        command = [entry['python'], '-u', '-m', 'serve.server', '--engine', 'strata',
+                   '--config', str(active_config), '--host', '127.0.0.1', '--port', str(config['port'])]
+        process = self.spawn_server(entry, command, log_path, '--config', active_config, self.context)
+        return self.wait_for_model(index, process, log_path)
 
     def stop(self, index):
-        if ENTRIES[index]['kind'] == 'ollama':
+        entry = ENTRIES[index]
+        if entry['kind'] == 'ollama':
             for model in self.loaded():
-                if model['name']==ENTRIES[index]['model_id']:
+                if model['name'] == entry['model_id']:
                     self.unload(model['name'])
         else:
-            self.stop_server()
-            self.release_supervisor(ENTRIES[index])
+            self.stop_server(entry['key'])
+            if entry['kind'] == 'strata':
+                self.release_supervisor(entry)
         return self.status(index)
 
 
@@ -326,20 +417,19 @@ class App:
         selected = initial_selection()
         self.combo.current(selected)
         self.combo.bind('<<ComboboxSelected>>', self.changed)
-        context_row = ttk.Frame(card, style='Card.TFrame')
-        context_row.pack(fill='x', pady=(12, 0))
-        ttk.Label(context_row, text='CONTEXT', style='Card.TLabel').pack(side='left')
+        self.context_row = ttk.Frame(card, style='Card.TFrame')
+        ttk.Label(self.context_row, text='CONTEXT', style='Card.TLabel').pack(side='left')
         self.context = tk.StringVar()
-        self.context_combo = ttk.Combobox(context_row, textvariable=self.context, width=12, state='readonly')
+        self.context_combo = ttk.Combobox(self.context_row, textvariable=self.context, width=12, state='readonly')
         self.context_combo.pack(side='right')
-        self.update_context()
         self.status = tk.StringVar(value='Checking…')
         self.status_label = tk.Label(card, textvariable=self.status, bg=panel, fg=muted,
                                      anchor='w', justify='left', wraplength=450, font=('Segoe UI', 10))
         self.status_label.pack(fill='x', pady=(14, 0))
         self.status.trace_add('write', self.style_status)
-        ttk.Label(frame, text='API ENDPOINT', style='Muted.TLabel', font=('Segoe UI', 9, 'bold')).pack(anchor='w')
-        self.url = tk.StringVar(value=URLS[selected])
+        self.endpoint_label = ttk.Label(frame, style='Muted.TLabel', font=('Segoe UI', 9, 'bold'))
+        self.endpoint_label.pack(anchor='w')
+        self.url = tk.StringVar()
         endpoint = ttk.Frame(frame)
         endpoint.pack(fill='x', pady=(8, 18))
         tk.Entry(endpoint, textvariable=self.url, state='readonly', readonlybackground=bg,
@@ -354,6 +444,7 @@ class App:
         self.stop_button.pack(side='left', padx=(12, 0), fill='x', expand=True)
         ttk.Label(frame, text='Start switches models. Closing the app keeps your model running.',
                   style='Muted.TLabel', font=('Segoe UI', 9)).pack(anchor='w', pady=(18, 0))
+        self.changed()
         root.after(100, self.tick)
         root.after(50, self.dark_titlebar)
 
@@ -372,6 +463,10 @@ class App:
 
     def update_context(self):
         entry = ENTRIES[self.combo.current()]
+        if entry['kind'] == 'haru':
+            self.context_row.pack_forget()
+            return
+        self.context_row.pack(fill='x', pady=(12, 0), before=self.status_label)
         values = tuple(context_label(n) for n in entry.get('contexts', [262144]))
         self.context_combo.configure(values=values, state='readonly' if len(values)>1 else 'disabled')
         self.context.set(context_label(entry.get('default_context', entry.get('contexts', [262144])[0])))
@@ -379,15 +474,25 @@ class App:
     def changed(self, _=None):
         self.update_context()
         self.error = False
-        self.url.set(URLS[self.combo.current()])
+        entry = ENTRIES[self.combo.current()]
+        self.url.set(model_url(entry))
+        voice = entry['kind'] == 'haru'
+        self.endpoint_label.configure(text='VOICE CHAT' if voice else 'API ENDPOINT')
+        self.copy_button.configure(text='Open Voice Chat' if voice else 'Copy API URL',
+                                   command=self.open_voice_chat if voice else self.copy,
+                                   state='disabled' if voice else 'normal')
         self.status.set('Checking…')
+
+    def open_voice_chat(self):
+        webbrowser.open(self.url.get())
 
     def copy(self):
         self.root.clipboard_clear()
         self.root.clipboard_append(self.url.get())
         self.root.update_idletasks()
         self.copy_button.configure(text='Copied!')
-        self.root.after(1800, lambda: self.copy_button.configure(text='Copy API URL'))
+        self.root.after(1800, lambda: self.copy_button.configure(text='Copy API URL')
+                        if ENTRIES[self.combo.current()]['kind'] != 'haru' else None)
 
     def action(self, action):
         if self.busy:
@@ -395,22 +500,29 @@ class App:
         self.busy = True
         self.error = False
         index = self.combo.current()
-        self.backend.context = CONTEXT_VALUES[self.context.get()]
-        self.status.set('Loading… Strata can take several minutes.' if action == 'start' else 'Unloading…')
+        voice = ENTRIES[index]['kind'] == 'haru'
+        if voice:
+            self.copy_button.configure(state='disabled')
+        else:
+            self.backend.context = CONTEXT_VALUES[self.context.get()]
+        loading = 'Loading Haru…' if voice else 'Loading… Strata can take several minutes.'
+        self.status.set(loading if action == 'start' else 'Unloading…')
         for widget in (self.combo, self.context_combo, self.start_button, self.stop_button):
             widget.configure(state='disabled')
         def run():
             try:
-                value = getattr(self.backend, action)(index)
+                with model_change():
+                    value = getattr(self.backend, action)(index)
             except Exception as exc:
                 value = 'Error: ' + str(exc)
-            self.events.put(('done', index, value))
+            self.events.put((action, index, value))
         threading.Thread(target=run, daemon=False).start()
 
     def tick(self):
         while not self.events.empty():
             kind, index, value = self.events.get_nowait()
-            if kind == 'done':
+            done = kind != 'poll'
+            if done:
                 self.busy = False
                 self.error = value.startswith('Error:')
                 self.combo.configure(state='readonly')
@@ -419,8 +531,13 @@ class App:
                 self.stop_button.configure(state='normal')
             else:
                 self.polling = False
-            if index == self.combo.current() and (kind == 'done' or (not self.busy and not self.error)):
+            if index == self.combo.current() and (done or (not self.busy and not self.error)):
                 self.status.set(value)
+                if ENTRIES[index]['kind'] == 'haru':
+                    ready = value.startswith('Ready')
+                    self.copy_button.configure(state='normal' if ready else 'disabled')
+                    if ready and kind == 'start':
+                        self.open_voice_chat()
         if not self.busy and not self.polling:
             self.polling = True
             index = self.combo.current()
@@ -443,12 +560,14 @@ if __name__ == '__main__':
         print(json.dumps({entry['key']:backend.status(i) for i,entry in enumerate(ENTRIES)}))
     elif args.start:
         index=next(i for i,entry in enumerate(ENTRIES) if entry['key']==args.start)
-        print(backend.start(index),flush=True)
+        with model_change():
+            print(backend.start(index),flush=True)
     elif args.stop:
-        backend.stop_server()
-        for entry in ENTRIES:
-            if entry['kind'] == 'strata':
-                backend.release_supervisor(entry)
+        with model_change():
+            backend.stop_server()
+            for entry in ENTRIES:
+                if entry['kind'] == 'strata':
+                    backend.release_supervisor(entry)
     else:
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('Maxis.LocalModels')
         kernel=ctypes.windll.kernel32
