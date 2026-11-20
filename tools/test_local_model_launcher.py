@@ -137,5 +137,40 @@ class SupervisedStop(LauncherCase):
             self.assertEqual(self.module.initial_selection(), 0)
 
 
+class HaruLifecycle(LauncherCase):
+    def setUp(self):
+        super().setUp()
+        self.entry = {'key': 'haru', 'kind': 'haru', 'python': str(self.root / 'python.exe'),
+                      'checkpoint': str(self.root), 'port': 18998}
+        self.module.ENTRIES.append(self.entry)
+
+    def test_incomplete_install_preserves_loaded_model(self):
+        Path(self.entry['python']).touch()
+        for name in ('config.json', 'tokenizer.json', 'model.safetensors.partial'):
+            (self.root / name).touch()
+        with patch.object(self.backend, 'stop_server') as stop, self.assertRaisesRegex(RuntimeError, 'checkpoint'):
+            self.backend.start(1)
+        stop.assert_not_called()
+
+    def test_occupied_port_preserves_loaded_model(self):
+        with patch.object(self.backend, 'haru_installed', return_value=True), \
+             patch.object(self.module.socket, 'socket') as socket, patch.object(self.backend, 'stop_server') as stop:
+            socket.return_value.__enter__.return_value.connect_ex.return_value = 0
+            with self.assertRaisesRegex(RuntimeError, 'port 18998 is occupied'):
+                self.backend.start(1)
+        stop.assert_not_called()
+
+    def test_unowned_ready_endpoint_is_ignored(self):
+        with patch.object(self.backend, 'haru_installed', return_value=True), \
+             patch.object(self.module.requests, 'get') as get:
+            self.assertEqual(self.backend.status(1), 'Offline')
+        get.assert_not_called()
+
+    def test_stopping_haru_does_not_terminate_another_model(self):
+        with patch.object(self.module.psutil, 'Process') as process:
+            self.backend.stop(1)
+        process.assert_not_called()
+
+
 if __name__ == '__main__':
     unittest.main()
