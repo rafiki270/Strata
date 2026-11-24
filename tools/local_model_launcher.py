@@ -121,23 +121,16 @@ class Backend:
         process = self.owned_process(key)
         if process is None:
             return
-        children = process.children(recursive=True)
-        # Capture the owned descendants before terminating the interpreter launcher.
-        for child in reversed(children):
-            try:
-                child.terminate()
-            except psutil.NoSuchProcess:
-                pass
-        try:
-            process.terminate()
-        except psutil.NoSuchProcess:
-            pass
-        _, alive = psutil.wait_procs([process, *children], timeout=10)
-        for child in alive:
+        # Stop the supervisor before the engine so it cannot restart the engine.
+        processes = [process, *process.children(recursive=True)]
+        for child in processes:
             try:
                 child.kill()
             except psutil.NoSuchProcess:
                 pass
+        _, alive = psutil.wait_procs(processes, timeout=15)
+        if alive:
+            raise RuntimeError('The model process tree has not exited. Check the server log.')
         STATE.unlink(missing_ok=True)
 
     def release_supervisor(self, entry):
@@ -146,7 +139,8 @@ class Backend:
         base = entry.get('base', DEFAULT_BASE)
         if not command or served_model(base) != entry['model_id']:
             return
-        result = subprocess.run(command, cwd=entry.get('source_root'), stdin=subprocess.DEVNULL,
+        result = subprocess.run(command, cwd=entry.get('supervisor_cwd', entry.get('source_root')),
+                                stdin=subprocess.DEVNULL,
                                 capture_output=True, text=True, creationflags=FLAGS, timeout=120)
         if result.returncode:
             raise RuntimeError('The supervisor stop command failed: '
@@ -216,7 +210,8 @@ class Backend:
             health = response.json()
             if health.get('model') != entry['model_id']:
                 return 'Unloaded · another model is running'
-            if health.get('loaded') is not True:
+            loaded = health.get('loaded', health.get('status') == 'ok' and not health.get('unloaded'))
+            if loaded is not True:
                 return 'Loading / not ready'
             return f"Ready · {health['max_context']:,} context"
         except requests.ConnectionError:
@@ -315,6 +310,10 @@ class Backend:
             raise RuntimeError('The model download or preparation has not finished yet.')
         if self.context not in entry.get('contexts', [262144]):
             raise ValueError('This context size is not configured for the selected model.')
+        engine = entry.get('engine', 'strata')
+        if engine not in {'strata', 'maya'}:
+            raise ValueError(f'Unsupported inference engine: {engine}')
+        config = json.loads(source_config.read_text(encoding='utf-8'))
         try:
             active = json.loads(STATE.read_text())
         except (OSError, ValueError):
@@ -325,10 +324,12 @@ class Backend:
                 return status
         self.stop_server()
         base = entry.get('base','http://127.0.0.1:8080')
+        for model in ENTRIES:
+            if model['kind'] == 'strata' and model.get('base', DEFAULT_BASE) == base:
+                self.release_supervisor(model)
         self.require_api_free(base)
         for model in self.loaded():
             self.unload(model['name'])
-        config = json.loads(source_config.read_text(encoding='utf-8'))
         arguments = config['args']
         if '--max-context' in arguments:
             arguments[arguments.index('--max-context')+1] = str(self.context)
@@ -337,7 +338,7 @@ class Backend:
         active_config = STATE_DIR/f"{entry['key']}-active.json"
         active_config.write_text(json.dumps(config,indent=2))
         log_path = STATE_DIR/f"{entry['key']}-server.log"
-        command = [entry['python'], '-u', '-m', 'serve.server', '--engine', 'strata',
+        command = [entry['python'], '-u', '-m', 'serve.server', '--engine', engine,
                    '--config', str(active_config), '--host', '127.0.0.1', '--port', str(config['port'])]
         process = self.spawn_server(entry, command, log_path, '--config', active_config, self.context)
         return self.wait_for_model(index, process, log_path)
