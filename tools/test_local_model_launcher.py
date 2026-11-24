@@ -32,6 +32,22 @@ class LauncherCase(unittest.TestCase):
 
 
 class LifecycleGuards(LauncherCase):
+    def test_maya_uses_configured_engine(self):
+        self.module.ENTRIES[0].update(engine='maya', python='python')
+        with patch.object(self.backend, 'owned_process', return_value=None), \
+             patch.object(self.backend, 'require_api_free'), patch.object(self.backend, 'loaded', return_value=[]), \
+             patch.object(self.backend, 'spawn_server') as spawn, patch.object(self.backend, 'wait_for_model'):
+            self.backend.start(0)
+        command = spawn.call_args.args[1]
+        self.assertEqual(command[command.index('--engine') + 1], 'maya')
+
+    def test_current_health_distinguishes_ready_and_unloaded(self):
+        for unloaded in (False, True):
+            response = Mock(json=Mock(return_value={'model':'deepseek', 'status':'ok',
+                                                    'unloaded':unloaded, 'max_context':262144}))
+            with patch.object(self.module.requests, 'get', return_value=response):
+                self.assertEqual(self.backend.status(0).startswith('Ready'), not unloaded)
+
     def test_recycled_pid_is_preserved(self):
         process = Mock()
         process.create_time.return_value = 20
