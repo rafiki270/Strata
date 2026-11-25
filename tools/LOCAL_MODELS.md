@@ -6,6 +6,10 @@ A Strata model kept online by a persistent supervisor is not recorded by this la
 
 Set `LOCAL_MODELS_REGISTRY` to a private JSON file (or place `local-models.json` beside the script). It contains `asset_root` for existing icons, `state_dir` for generated configurations/logs, and a `models` array. Each entry has `key`, `label`, `kind` (`strata` or `ollama`), `model_id`, `contexts` (integers), and `default_context`. Strata entries also have `config` (an existing setup-generated JSON), `python`, and `source_root`. Optional fields are `base` (default `http://127.0.0.1:8080`), `url`, and `ready_timeout`. An Ollama entry may set `executable` to start its existing service when offline. An optional `proxy` object (`host`, `port`, `python`, `script`, `source_root`) preserves an already configured API proxy. Omit it for local-only use. Keep all paths local. Do not put credentials in the registry.
 
+To use the same address after switching Strata text models, set `"strata_port": 18080` at the top of the registry. This setting covers new entries and overrides saved Strata addresses. Set the same port in any Strata Terminal profile you also use. Ollama and voice services keep their own addresses.
+
+Point your client at `http://127.0.0.1:18080/v1`. Run `curl.exe -fsS http://127.0.0.1:18080/health` to see the current model ID in `model` and confirm `loaded` is true. If you have configured LAN access, use the serving computer's hostname in place of `127.0.0.1`. After unloading a model for another task, the next model you load uses the same address.
+
 The context selector lists configured sizes. A listed size does not establish that it fits the GPU or retrieves reliably; validate each profile before adding it. The launcher reports the loaded model and context returned by the API. A missing configuration remains unavailable while its download/preparation finishes.
 
 ## Haru-4B voice chat
