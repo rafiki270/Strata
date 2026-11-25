@@ -30,6 +30,10 @@ ENTRIES = REGISTRY['models']
 MODELS = tuple(entry['label'] for entry in ENTRIES)
 FLAGS = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
 DEFAULT_BASE = 'http://127.0.0.1:8080'
+STRATA_PORT = REGISTRY.get('strata_port')
+if STRATA_PORT is not None and (type(STRATA_PORT) is not int or not 1 <= STRATA_PORT <= 65535):
+    raise ValueError('strata_port must be an integer between 1 and 65535')
+SHARED_STRATA_BASE = f'http://127.0.0.1:{STRATA_PORT}' if STRATA_PORT is not None else None
 HARU_PORT = 8998
 
 
@@ -37,7 +41,13 @@ def haru_url(entry):
     return f"http://127.0.0.1:{int(entry.get('port', HARU_PORT))}"
 
 
+def strata_base(entry):
+    return SHARED_STRATA_BASE or entry.get('base', DEFAULT_BASE)
+
+
 def model_url(entry):
+    if entry['kind'] == 'strata' and SHARED_STRATA_BASE:
+        return SHARED_STRATA_BASE + '/v1'
     return haru_url(entry) if entry['kind'] == 'haru' else entry.get('url', DEFAULT_BASE + '/v1')
 
 
@@ -74,10 +84,10 @@ def served_model(base):
 
 def initial_selection():
     # Select the model that is actually being served, even when a supervisor started it.
-    for base in dict.fromkeys(entry.get('base', DEFAULT_BASE) for entry in ENTRIES if entry['kind'] == 'strata'):
+    for base in dict.fromkeys(strata_base(entry) for entry in ENTRIES if entry['kind'] == 'strata'):
         model = served_model(base)
         for index, entry in enumerate(ENTRIES):
-            if entry['kind'] == 'strata' and entry.get('base', DEFAULT_BASE) == base and entry['model_id'] == model:
+            if entry['kind'] == 'strata' and strata_base(entry) == base and entry['model_id'] == model:
                 return index
     try:
         key = json.loads(STATE.read_text())['key']
@@ -143,7 +153,7 @@ class Backend:
     def release_supervisor(self, entry):
         """Stop a model that a declared persistent supervisor serves, and keep it stopped."""
         command = entry.get('supervisor_stop')
-        base = entry.get('base', DEFAULT_BASE)
+        base = strata_base(entry)
         if not command or served_model(base) != entry['model_id']:
             return
         result = subprocess.run(command, cwd=entry.get('source_root'), stdin=subprocess.DEVNULL,
@@ -211,7 +221,7 @@ class Backend:
                 return f"Ready · {model.get('context_length', 0):,} context" if model else 'Unloaded'
             if not Path(entry['config']).exists():
                 return 'Not installed · model download or preparation is still in progress'
-            response = requests.get(entry.get('base','http://127.0.0.1:8080')+'/health', timeout=3)
+            response = requests.get(strata_base(entry)+'/health', timeout=3)
             response.raise_for_status()
             health = response.json()
             if health.get('model') != entry['model_id']:
@@ -254,7 +264,7 @@ class Backend:
             strata = [model for model in ENTRIES if model['kind'] == 'strata']
             for model in strata:
                 self.release_supervisor(model)
-            for base in {model.get('base', DEFAULT_BASE) for model in strata}:
+            for base in {strata_base(model) for model in strata}:
                 self.require_api_free(base)
             for model in self.loaded():
                 self.unload(model['name'])
@@ -299,7 +309,7 @@ class Backend:
         self.ensure_proxy()
         if entry['kind'] == 'ollama':
             self.stop_server()
-            for base in {e.get('base','http://127.0.0.1:8080') for e in ENTRIES if e['kind']=='strata'}:
+            for base in {strata_base(e) for e in ENTRIES if e['kind']=='strata'}:
                 self.require_api_free(base)
             self.ensure_ollama(entry)
             for model in self.loaded():
@@ -324,7 +334,7 @@ class Backend:
             if status.startswith('Ready'):
                 return status
         self.stop_server()
-        base = entry.get('base','http://127.0.0.1:8080')
+        base = strata_base(entry)
         self.require_api_free(base)
         for model in self.loaded():
             self.unload(model['name'])

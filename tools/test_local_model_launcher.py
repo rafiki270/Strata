@@ -31,6 +31,21 @@ class LauncherCase(unittest.TestCase):
         self.scratch.cleanup()
 
 
+class SharedStrataPort(LauncherCase):
+    def test_shared_port_overrides_stale_addresses_and_applies_to_future_models(self):
+        registry = self.root/'registry.json'
+        settings = json.loads(registry.read_text())
+        settings['strata_port'] = 18080
+        registry.write_text(json.dumps(settings))
+        self.module.__spec__.loader.exec_module(self.module)
+        existing = {'kind':'strata', 'base':'http://127.0.0.1:8081', 'url':'http://127.0.0.1:8081/v1'}
+        for entry in [existing, {'kind':'strata'}]:
+            self.assertEqual(self.module.strata_base(entry), 'http://127.0.0.1:18080')
+            self.assertEqual(self.module.model_url(entry), 'http://127.0.0.1:18080/v1')
+        ollama = {'kind':'ollama', 'url':'http://127.0.0.1:11434/v1'}
+        self.assertEqual(self.module.model_url(ollama), ollama['url'])
+
+
 class LifecycleGuards(LauncherCase):
     def test_recycled_pid_is_preserved(self):
         process = Mock()
