@@ -8,7 +8,7 @@ Set `LOCAL_MODELS_REGISTRY` to a private JSON file (or place `local-models.json`
 
 To use the same address after switching Strata text models, set `"strata_port": 18080` at the top of the registry. This setting covers new entries and overrides saved Strata addresses. Set the same port in any Strata Terminal profile you also use. Ollama and voice services keep their own addresses.
 
-Point your client at `http://127.0.0.1:18080/v1`. Run `curl.exe -fsS http://127.0.0.1:18080/health` to see the current model ID in `model` and confirm `loaded` is true. If you have configured LAN access, use the serving computer's hostname in place of `127.0.0.1`. After unloading a model for another task, the next model you load uses the same address.
+Point your client at `http://127.0.0.1:18080/v1`. Run `curl.exe -fsS http://127.0.0.1:18080/health` to read the current model ID in `model`. A ready server reports `loaded: true`. Older Maya profiles report `status: "ok"` and `unloaded: false`. If you have configured LAN access, use the serving computer's hostname in place of `127.0.0.1`. After unloading a model for another task, the next model you load uses the same address.
 
 The context selector lists configured sizes. A listed size does not establish that it fits the GPU or retrieves reliably; validate each profile before adding it. The launcher reports the loaded model and context returned by the API. A missing configuration remains unavailable while its download/preparation finishes.
 
